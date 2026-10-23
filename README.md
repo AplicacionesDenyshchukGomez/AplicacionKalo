@@ -20,7 +20,7 @@ Interfaz	-> Jetpack Compose<br>
 Arquitectura	-> MVVM<br>
 Base de datos local	-> Room (SQLite)<br>
 Base de datos de alimentos	-> Open Food Facts<br>
-Control de versiones	-> Git y GitHub<br>
+Control de versiones	-> Git y GitHub<br><br>
 Autores<br>
 Mikel — @Mikel1412<br>
 Daniel — @DaniZomboo<br>
