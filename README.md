@@ -1,5 +1,5 @@
 # AplicacionKalo
-Kalo
+Kalo <br>
 Aplicación móvil de nutrición y conteo de calorías, desarrollada en Kotlin.
 
 Descripción
@@ -16,13 +16,13 @@ Seguimiento del progreso: evolución del peso y resúmenes semanales.
 Tecnologías utilizadas
 
 Área	Tecnología
-Lenguaje	Kotlin
-Plataforma	Android
-Interfaz	Jetpack Compose
-Arquitectura	MVVM
-Base de datos local	Room (SQLite)
-Base de datos de alimentos	Open Food Facts
-Control de versiones	Git y GitHub
+Lenguaje ->	Kotlin
+Plataforma	-> Android
+Interfaz	-> Jetpack Compose
+Arquitectura	-> MVVM
+Base de datos local	-> Room (SQLite)
+Base de datos de alimentos	-> Open Food Facts
+Control de versiones	-> Git y GitHub
 Autores
 Mikel — @Mikel1412
 Daniel — @DaniZomboo
