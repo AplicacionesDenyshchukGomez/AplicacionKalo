@@ -1,58 +1,100 @@
 package com.DanielDMikelG.kalo.ui.theme
 
-import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+/** Colores propios de Kalo que Material no tiene: nutrientes y agua. */
+@Immutable
+data class KaloExtraColors(
+    val protein: Color,
+    val fat: Color,
+    val carbs: Color,
+    val fiber: Color,
+    val water: Color,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+private val LightExtraColors = KaloExtraColors(
+    protein = ProteinLight,
+    fat = FatLight,
+    carbs = CarbsLight,
+    fiber = FiberLight,
+    water = WaterLight,
+)
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+private val DarkExtraColors = KaloExtraColors(
+    protein = ProteinDark,
+    fat = FatDark,
+    carbs = CarbsDark,
+    fiber = FiberDark,
+    water = WaterDark,
+)
+
+val LocalKaloColors = staticCompositionLocalOf { LightExtraColors }
+
+/** Uso: MaterialTheme.kaloColors.protein */
+val MaterialTheme.kaloColors: KaloExtraColors
+    @Composable
+    @ReadOnlyComposable
+    get() = LocalKaloColors.current
+
+private val LightColors = lightColorScheme(
+    primary = KaloGreen,
     onPrimary = Color.White,
+    primaryContainer = KaloGreenContainer,
+    onPrimaryContainer = Color(0xFF002106),
+    secondary = KaloLime,
     onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondaryContainer = KaloLimeContainer,
+    onSecondaryContainer = Color(0xFF1B2A00),
+    background = LightBackground,
+    onBackground = LightOnSurface,
+    surface = LightSurface,
+    onSurface = LightOnSurface,
+    surfaceVariant = LightSurfaceVariant,
+    onSurfaceVariant = LightOnSurfaceVariant,
+    outline = LightOutline,
+    error = LightError,
+)
+
+private val DarkColors = darkColorScheme(
+    primary = KaloGreenDark,
+    onPrimary = Color(0xFF003910),
+    primaryContainer = KaloGreenContainerDark,
+    onPrimaryContainer = KaloGreenContainer,
+    secondary = KaloLimeDark,
+    onSecondary = Color(0xFF2A3A00),
+    secondaryContainer = KaloLimeContainerDark,
+    onSecondaryContainer = KaloLimeContainer,
+    background = DarkBackground,
+    onBackground = DarkOnSurface,
+    surface = DarkSurface,
+    onSurface = DarkOnSurface,
+    surfaceVariant = DarkSurfaceVariant,
+    onSurfaceVariant = DarkOnSurfaceVariant,
+    outline = DarkOutline,
+    error = DarkError,
 )
 
 @Composable
 fun KaloTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    CompositionLocalProvider(
+        LocalKaloColors provides if (darkTheme) DarkExtraColors else LightExtraColors,
+    ) {
+        MaterialTheme(
+            colorScheme = if (darkTheme) DarkColors else LightColors,
+            typography = Typography,
+            content = content,
+        )
     }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
 }
