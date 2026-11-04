@@ -6,17 +6,19 @@ import androidx.room.PrimaryKey
 import java.time.LocalDate
 import java.time.Period
 
+
 @Entity(
     tableName = "usuario",
     indices = [Index(value = ["email"], unique = true)] //impide que haya dos usuarios con el mismo email
 )
-data class Usuario(
+data class UsuarioEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0, //room genera el id automaticamente
     val email: String,
     val nombre: String,
-    val fechaNacimiento: String,   // "2000-05-14"
-    val sexo: String,              // "hombre", "mujer" u "otro"
-    val altura: Int                // en cm
+    val fechaNacimiento: String,
+    val sexo: String,
+    val nivelActividad: String,
+    val altura: Int
 ) {
     fun calcularEdad(): Int =
         Period.between(LocalDate.parse(fechaNacimiento), LocalDate.now()).years
