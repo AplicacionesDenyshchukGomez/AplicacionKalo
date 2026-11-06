@@ -63,3 +63,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
 }
+
+configurations.configureEach {
+    exclude(group = "com.intellij", module = "annotations")
+}
