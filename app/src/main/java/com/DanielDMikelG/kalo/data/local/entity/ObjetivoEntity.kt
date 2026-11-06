@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.DanielDMikelG.kalo.domain.model.TipoObjetivo
 
 @Entity(
     tableName = "objetivo",
@@ -18,9 +19,9 @@ import androidx.room.PrimaryKey
 data class ObjetivoEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val usuarioId: Long,
-    val tipo: String,   // GANAR, MANTENER, ADELGAZAR
-    val metaKg: Double,       // peso objetivo en kg
+    val tipo: TipoObjetivo,   // GANAR, MANTENER, ADELGAZAR
+    val metaKg: Float,       // peso objetivo en kg
     val plazo: Int,           // en semanas
-    val kcalDiarias: Int,
+    val kcalDiarias: Int?,
     val aguaMeta: Int         // en ml (ej. 2000)
 )
