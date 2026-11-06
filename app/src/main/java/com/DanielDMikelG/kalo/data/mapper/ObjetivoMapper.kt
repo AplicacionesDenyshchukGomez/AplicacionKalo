@@ -1,9 +1,8 @@
 package com.DanielDMikelG.kalo.data.mapper
 
 import com.DanielDMikelG.kalo.data.local.entity.ObjetivoEntity
-import com.DanielDMikelG.kalo.domain.model.Objetivo
 
-fun ObjetivoEntity.toDomain() = Objetivo(
+fun ObjetivoEntity.toDomain() = ObjetivoEntity(
     id = id,
     usuarioId = usuarioId,
     tipo = tipo,

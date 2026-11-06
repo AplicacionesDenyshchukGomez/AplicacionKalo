@@ -5,18 +5,29 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.DanielDMikelG.kalo.data.local.dao.ObjetivoDao
+import com.DanielDMikelG.kalo.data.local.dao.RachaDao
+import com.DanielDMikelG.kalo.data.local.dao.RegistroAguaDao
+import com.DanielDMikelG.kalo.data.local.dao.RegistroPesoDao
 import com.DanielDMikelG.kalo.data.local.dao.UsuarioDao
 import com.DanielDMikelG.kalo.data.local.entity.ObjetivoEntity
+import com.DanielDMikelG.kalo.data.local.entity.RachaEntity
+import com.DanielDMikelG.kalo.data.local.entity.RegistroAguaEntity
+import com.DanielDMikelG.kalo.data.local.entity.RegistroPesoEntity
 import com.DanielDMikelG.kalo.data.local.entity.UsuarioEntity
 
 @Database(
-    entities = [UsuarioEntity::class, ObjetivoEntity::class],
-    version = 3
+    entities = [
+        UsuarioEntity::class, ObjetivoEntity::class,
+        RegistroPesoEntity::class, RegistroAguaEntity::class, RachaEntity::class
+    ],
+    version = 1
 )
 abstract class KaloDatabase : RoomDatabase() {
-
     abstract fun usuarioDao(): UsuarioDao
     abstract fun objetivoDao(): ObjetivoDao
+    abstract fun registroPesoDao(): RegistroPesoDao
+    abstract fun registroAguaDao(): RegistroAguaDao
+    abstract fun rachaDao(): RachaDao
 
     companion object {
         @Volatile
@@ -34,4 +45,6 @@ abstract class KaloDatabase : RoomDatabase() {
                     .also { INSTANCE = it }
             }
     }
+
+
 }

@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 @Entity(
     tableName = "objetivo",
     foreignKeys = [ForeignKey(
-        entity = Usuario::class,
+        entity = UsuarioEntity::class,
         parentColumns = ["id"],
         childColumns = ["usuarioId"],
         onDelete = ForeignKey.CASCADE  //Si borras el usuario se borra el objetivo
