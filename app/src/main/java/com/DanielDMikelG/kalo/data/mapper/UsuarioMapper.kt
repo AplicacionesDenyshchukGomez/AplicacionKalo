@@ -1,6 +1,7 @@
 package com.DanielDMikelG.kalo.data.mapper
 
 import com.DanielDMikelG.kalo.data.local.entity.UsuarioEntity
+import com.DanielDMikelG.kalo.domain.model.Usuario
 
 fun UsuarioEntity.toDomain() = Usuario(
     id = id,

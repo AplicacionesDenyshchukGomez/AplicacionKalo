@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import java.time.LocalDate
 
 @Entity(
     tableName = "registro_peso",
@@ -18,6 +19,6 @@ import androidx.room.PrimaryKey
 data class RegistroPesoEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val usuarioId: Long,
-    val fecha: String,    // "2026-11-06"
-    val pesoKg: Double
+    val fecha: LocalDate,    // "2026-11-06"
+    val pesoKg: Float
 )
