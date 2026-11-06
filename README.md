@@ -56,11 +56,11 @@ COMO SE COMPARTEN LOS DATOS?
 Seria justo igual que los pasos para escribir pero al reves
 
 
-ISSUES A HACER
-Mikel
+ISSUES A HACER<br>
+Mikel<br>
 Issue CreacionUsuarioYRelacionadosRoom -> Usuario, Objetivo, RestiroPeso, RegistroAgua, Racha<br>
-Issue CreacionComidaYRelacionadosRoom -> Comida, EntradaComida, Alimento<br>
-Dani
+Issue CreacionComidaYRelacionadosRoom -> Comida, EntradaComida, Alimento<br><br>
+Dani<br>
 Issue DomainModelUsuario -> Usuario, Objetivo, RestiroPeso, RegistroAgua, Racha<br>
 Issue DomainModelComida -> Comida, EntradaComida, Alimento<br>
 Issue PantallaUsuario -> Hacer la pantalla de perfil y conectar con domain model<br>
