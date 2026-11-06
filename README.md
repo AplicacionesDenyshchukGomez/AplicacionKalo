@@ -24,3 +24,43 @@ Control de versiones	-> Git y GitHub<br><br>
 Autores<br>
 Mikel — @Mikel1412<br>
 Daniel — @DaniZomboo<br>
+<br>
+<br>
+PLANIFICACION FUTURO PROYECTO
+PARA MAS TARDE
+
+ayuno, preferncia_dieta, alimento_dieta, logro, usuario_logro
+
+
+LO VAMOS VIENDO
+
+alimento_alergeno, mision_diaria
+
+
+PONER 100%
+
+Usuario, Objetivo, registro_peso, registro_agua, comida, entrada_comida, alimento, racha
+
+
+COMO SE COMPARTEN LOS DATOS?
+
+//Para escribir
+
+1. El ViewModel tiene un usuario, por ejemplo, y se lo pasa al repositorio
+2. El repositorio lo convierte con el mapper y llama al DAO
+	2.1 El mapper lo transforma en UsuarioEntity
+3. El dao guarda la entidad en la base de datos
+4. KaloDatabase.kt escribe la fila en kalo.db
+
+//Para leer
+Seria justo igual que los pasos para escribir pero al reves
+
+
+ISSUES A HACER
+
+Issue CreacionUsuarioYRelacionadosRoom -> Usuario, Objetivo, RestiroPeso, RegistroAgua, Racha
+Issue CreacionComidaYRelacionadosRoom -> Comida, EntradaComida, Alimento
+
+Issue DomainModelUsuario -> Usuario, Objetivo, RestiroPeso, RegistroAgua, Racha
+Issue DomainModelComida -> Comida, EntradaComida, Alimento
+Issue PantallaUsuario -> Hacer la pantalla de perfil y conectar con domain model
