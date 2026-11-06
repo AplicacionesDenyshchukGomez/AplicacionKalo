@@ -19,6 +19,6 @@ import java.time.LocalDate
 data class RegistroPesoEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val usuarioId: Long,
-    val fecha: LocalDate,    // "2026-11-06"
+    val fecha: String,    // "2026-11-06"
     val pesoKg: Float
 )

@@ -17,11 +17,11 @@ data class UsuarioEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0, //room genera el id automaticamente
     val email: String,
     val nombre: String,
-    val fechaNacimiento: LocalDate,
+    val fechaNacimiento: String,
     val sexo: Sexo,
     val nivelActividad: NivelActividad,
     val altura: Int
 ) {
-    fun edad(hoy: LocalDate = LocalDate.now()): Int =
-        Period.between(fechaNacimiento, hoy).years
+    fun calcularEdad(): Int =
+        Period.between(LocalDate.parse(fechaNacimiento), LocalDate.now()).years
 }

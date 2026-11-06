@@ -19,6 +19,6 @@ import java.time.LocalDate
 data class RegistroAguaEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val usuarioId: Long,
-    val fecha: LocalDate,
+    val fecha: String,
     val vasos: Int
 )
