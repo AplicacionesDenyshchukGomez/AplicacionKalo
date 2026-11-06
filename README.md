@@ -57,10 +57,10 @@ Seria justo igual que los pasos para escribir pero al reves
 
 
 ISSUES A HACER
-
-Issue CreacionUsuarioYRelacionadosRoom -> Usuario, Objetivo, RestiroPeso, RegistroAgua, Racha
-Issue CreacionComidaYRelacionadosRoom -> Comida, EntradaComida, Alimento
-
-Issue DomainModelUsuario -> Usuario, Objetivo, RestiroPeso, RegistroAgua, Racha
-Issue DomainModelComida -> Comida, EntradaComida, Alimento
-Issue PantallaUsuario -> Hacer la pantalla de perfil y conectar con domain model
+Mikel
+Issue CreacionUsuarioYRelacionadosRoom -> Usuario, Objetivo, RestiroPeso, RegistroAgua, Racha<br>
+Issue CreacionComidaYRelacionadosRoom -> Comida, EntradaComida, Alimento<br>
+Dani
+Issue DomainModelUsuario -> Usuario, Objetivo, RestiroPeso, RegistroAgua, Racha<br>
+Issue DomainModelComida -> Comida, EntradaComida, Alimento<br>
+Issue PantallaUsuario -> Hacer la pantalla de perfil y conectar con domain model<br>
