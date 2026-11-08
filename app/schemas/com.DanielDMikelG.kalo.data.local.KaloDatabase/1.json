@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a6c662194fc7104cf7ea1e83934f220c",
+    "identityHash": "4597517dcc44e58dd4d5398813214823",
     "entities": [
       {
         "tableName": "usuario",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `email` TEXT NOT NULL, `nombre` TEXT NOT NULL, `fechaNacimiento` TEXT NOT NULL, `sexo` TEXT NOT NULL, `nivelActividad` TEXT NOT NULL, `altura` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `email` TEXT NOT NULL COLLATE NOCASE, `nombre` TEXT NOT NULL COLLATE NOCASE, `fechaNacimiento` TEXT NOT NULL, `sexo` TEXT NOT NULL, `nivelActividad` TEXT NOT NULL, `altura` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -66,6 +66,15 @@
             ],
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_usuario_email` ON `${TABLE_NAME}` (`email`)"
+          },
+          {
+            "name": "index_usuario_nombre",
+            "unique": true,
+            "columnNames": [
+              "nombre"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_usuario_nombre` ON `${TABLE_NAME}` (`nombre`)"
           }
         ]
       },
@@ -568,7 +577,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a6c662194fc7104cf7ea1e83934f220c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4597517dcc44e58dd4d5398813214823')"
     ]
   }
 }

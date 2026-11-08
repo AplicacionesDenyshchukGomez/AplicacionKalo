@@ -24,6 +24,7 @@ sealed class Destino(
     data object Profile : Destino("profile", "Perfil", { Icons.Filled.Person }, { Icons.Outlined.Person })
 
     companion object {
-        val menu = listOf(Home, Diary, Kitchen, Profile)
+        val menu: List<Destino>
+            get() = listOf(Home, Diary, Kitchen, Profile)
     }
 }

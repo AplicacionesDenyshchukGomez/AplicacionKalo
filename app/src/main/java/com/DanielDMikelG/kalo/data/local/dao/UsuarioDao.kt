@@ -24,4 +24,10 @@ interface UsuarioDao {
 
     @Query("SELECT * FROM usuario WHERE email = :email LIMIT 1")
     suspend fun buscarPorEmail(email: String): UsuarioEntity? //Para comprobar si el email existe durante el login
+
+    @Query("SELECT * FROM usuario WHERE email = :texto OR nombre = :texto LIMIT 1")
+    suspend fun buscarPorEmailONombre(texto: String): UsuarioEntity?
+
+    @Query("SELECT * FROM usuario WHERE nombre = :nombre LIMIT 1")
+    suspend fun buscarPorNombre(nombre: String): UsuarioEntity?
 }
