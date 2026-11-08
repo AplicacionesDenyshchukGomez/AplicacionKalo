@@ -1,5 +1,6 @@
 package com.DanielDMikelG.kalo.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -11,12 +12,14 @@ import java.time.Period
 
 @Entity(
     tableName = "usuario",
-    indices = [Index(value = ["email"], unique = true)] //impide que haya dos usuarios con el mismo email
+    indices = [Index(value = ["email"], unique = true),
+        Index(value = ["nombre"], unique = true)
+    ] //impide que haya dos usuarios con el mismo email y mismo nombre
 )
 data class UsuarioEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0, //room genera el id automaticamente
-    val email: String,
-    val nombre: String,
+    @ColumnInfo(collate = ColumnInfo.NOCASE) val email: String,
+    @ColumnInfo(collate = ColumnInfo.NOCASE) val nombre: String,
     val fechaNacimiento: String,
     val sexo: Sexo,
     val nivelActividad: NivelActividad,
