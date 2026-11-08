@@ -21,7 +21,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-
+    
 rootProject.name = "Kalo"
 include(":app")
  
