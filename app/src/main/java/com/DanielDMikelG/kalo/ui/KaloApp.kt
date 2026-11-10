@@ -1,5 +1,6 @@
 package com.DanielDMikelG.kalo.ui
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.DanielDMikelG.kalo.data.local.SesionManager
+import com.DanielDMikelG.kalo.ui.screens.profile.ProfileRoute
 import com.DanielDMikelG.kalo.ui.screens.register.RegistroViewModel
 
 @Composable
@@ -75,7 +77,16 @@ fun KaloApp() {
             composable(Destino.Home.ruta) { PantallaVacia("Inicio") }
             composable(Destino.Diary.ruta) { PantallaVacia("Diario") }
             composable(Destino.Kitchen.ruta) { PantallaVacia("Cocina") }
-            composable(Destino.Profile.ruta) { PantallaVacia("Perfil") }
+            composable(Destino.Profile.ruta) {
+                ProfileRoute(
+                    onCerrarSesion = {
+                        navController.navigate(Rutas.LOGIN) {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
         }
     }
 }
