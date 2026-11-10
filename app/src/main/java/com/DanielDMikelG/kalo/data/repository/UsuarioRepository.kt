@@ -7,6 +7,8 @@ import com.DanielDMikelG.kalo.data.mapper.toEntity
 import com.DanielDMikelG.kalo.domain.model.Objetivo
 import com.DanielDMikelG.kalo.domain.model.RegistroPeso
 import com.DanielDMikelG.kalo.domain.model.Usuario
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
 class UsuarioRepository(private val db: KaloDatabase) {
@@ -33,5 +35,21 @@ class UsuarioRepository(private val db: KaloDatabase) {
                 RegistroPeso(usuarioId = id, fecha = LocalDate.now(), pesoKg = pesoInicialKg).toEntity()
             )
             id
+        }
+
+    fun observarUsuario(id: Long): Flow<Usuario?> =
+        usuarioDao.observarPorId(id).map { it?.toDomain() }
+
+    fun observarObjetivo(usuarioId: Long): Flow<Objetivo?> =
+        objetivoDao.observarPorUsuario(usuarioId).map { it?.toDomain() }
+
+    fun observarUltimoPeso(usuarioId: Long): Flow<RegistroPeso?> =
+        registroPesoDao.observarUltimo(usuarioId).map { it?.toDomain() }
+
+    // Usuario y objetivo se actualizan juntos: o se guardan los dos, o ninguno
+    suspend fun actualizarPerfil(usuario: Usuario, objetivo: Objetivo) =
+        db.withTransaction {
+            usuarioDao.actualizar(usuario.toEntity())
+            objetivoDao.actualizar(objetivo.toEntity())
         }
 }
