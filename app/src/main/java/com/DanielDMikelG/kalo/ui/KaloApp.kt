@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.DanielDMikelG.kalo.data.local.SesionManager
+import com.DanielDMikelG.kalo.ui.screens.home.HomeScreen
 import com.DanielDMikelG.kalo.ui.screens.register.RegistroViewModel
 
 @Composable
@@ -72,7 +73,7 @@ fun KaloApp() {
                 )
             }
 
-            composable(Destino.Home.ruta) { PantallaVacia("Inicio") }
+            composable(Destino.Home.ruta) { HomeScreen() }
             composable(Destino.Diary.ruta) { PantallaVacia("Diario") }
             composable(Destino.Kitchen.ruta) { PantallaVacia("Cocina") }
             composable(Destino.Profile.ruta) { PantallaVacia("Perfil") }

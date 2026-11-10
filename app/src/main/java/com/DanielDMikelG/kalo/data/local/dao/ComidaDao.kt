@@ -28,4 +28,12 @@ interface ComidaDao {
 
     @Delete
     suspend fun eliminar(comida: ComidaEntity)
+
+    @Query("""
+    SELECT DISTINCT c.fecha FROM comida c
+    INNER JOIN entrada_comida e ON e.comidaId = c.id
+    WHERE c.usuarioId = :usuarioId
+    ORDER BY c.fecha DESC
+""")
+    fun observarFechasConRegistros(usuarioId: Long): Flow<List<String>>
 }
