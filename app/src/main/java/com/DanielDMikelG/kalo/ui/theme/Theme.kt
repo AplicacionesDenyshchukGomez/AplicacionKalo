@@ -11,7 +11,10 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-/** Colores propios de Kalo que Material no tiene: nutrientes y agua. */
+/**
+ * Colores propios de Kalo que Material no tiene: nutrientes y agua.
+ * Los "soft" son el fondo pastel de las barras y los circulitos.
+ */
 @Immutable
 data class KaloExtraColors(
     val protein: Color,
@@ -19,6 +22,11 @@ data class KaloExtraColors(
     val carbs: Color,
     val fiber: Color,
     val water: Color,
+    val proteinSoft: Color,
+    val fatSoft: Color,
+    val carbsSoft: Color,
+    val fiberSoft: Color,
+    val waterSoft: Color,
 )
 
 private val LightExtraColors = KaloExtraColors(
@@ -27,6 +35,11 @@ private val LightExtraColors = KaloExtraColors(
     carbs = CarbsLight,
     fiber = FiberLight,
     water = WaterLight,
+    proteinSoft = ProteinSoftLight,
+    fatSoft = FatSoftLight,
+    carbsSoft = CarbsSoftLight,
+    fiberSoft = FiberSoftLight,
+    waterSoft = WaterSoftLight,
 )
 
 private val DarkExtraColors = KaloExtraColors(
@@ -35,6 +48,11 @@ private val DarkExtraColors = KaloExtraColors(
     carbs = CarbsDark,
     fiber = FiberDark,
     water = WaterDark,
+    proteinSoft = ProteinSoftDark,
+    fatSoft = FatSoftDark,
+    carbsSoft = CarbsSoftDark,
+    fiberSoft = FiberSoftDark,
+    waterSoft = WaterSoftDark,
 )
 
 val LocalKaloColors = staticCompositionLocalOf { LightExtraColors }
@@ -49,11 +67,11 @@ private val LightColors = lightColorScheme(
     primary = KaloGreen,
     onPrimary = Color.White,
     primaryContainer = KaloGreenContainer,
-    onPrimaryContainer = Color(0xFF002106),
-    secondary = KaloLime,
+    onPrimaryContainer = Color(0xFF14573A),
+    secondary = KaloSun,
     onSecondary = Color.White,
-    secondaryContainer = KaloLimeContainer,
-    onSecondaryContainer = Color(0xFF1B2A00),
+    secondaryContainer = KaloSunContainer,
+    onSecondaryContainer = Color(0xFF3F2E00),
     background = LightBackground,
     onBackground = LightOnSurface,
     surface = LightSurface,
@@ -66,13 +84,13 @@ private val LightColors = lightColorScheme(
 
 private val DarkColors = darkColorScheme(
     primary = KaloGreenDark,
-    onPrimary = Color(0xFF003910),
+    onPrimary = Color(0xFF00391F),
     primaryContainer = KaloGreenContainerDark,
     onPrimaryContainer = KaloGreenContainer,
-    secondary = KaloLimeDark,
-    onSecondary = Color(0xFF2A3A00),
-    secondaryContainer = KaloLimeContainerDark,
-    onSecondaryContainer = KaloLimeContainer,
+    secondary = KaloSunDark,
+    onSecondary = Color(0xFF3F2E00),
+    secondaryContainer = KaloSunContainerDark,
+    onSecondaryContainer = KaloSunContainer,
     background = DarkBackground,
     onBackground = DarkOnSurface,
     surface = DarkSurface,
@@ -94,6 +112,7 @@ fun KaloTheme(
         MaterialTheme(
             colorScheme = if (darkTheme) DarkColors else LightColors,
             typography = Typography,
+            shapes = KaloShapes,
             content = content,
         )
     }
