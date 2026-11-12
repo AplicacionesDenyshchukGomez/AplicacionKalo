@@ -59,6 +59,9 @@ import com.DanielDMikelG.kalo.ui.theme.Spacing
 import java.time.LocalDate
 import java.util.Locale
 import kotlin.math.abs
+import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 /**
  * Punto de entrada: es lo que se llama desde la navegación.
@@ -93,10 +96,13 @@ fun ProfileRoute(
     )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(editarAlEntrar, state.usuario, state.objetivo) {
-        if (editarAlEntrar && state.usuario != null && state.objetivo != null) {
-            viewModel.empezarEdicion()
+    // La señal se consume una sola vez, aunque quien la pone tarde en limpiarla
+    var pendiente by remember(editarAlEntrar) { mutableStateOf(editarAlEntrar) }
+    LaunchedEffect(pendiente, state.usuario, state.objetivo) {
+        if (pendiente && state.usuario != null && state.objetivo != null) {
+            pendiente = false
             onEdicionIniciada()
+            viewModel.empezarEdicion()
         }
     }
 
@@ -118,7 +124,9 @@ fun ProfileContent(
     onFormChange: (ProfileFormState) -> Unit,
     onAbrirAjustes: () -> Unit = {},
     modifier: Modifier = Modifier,
+
 ) {
+    BackHandler(enabled = state.editando, onBack = onCancelar)
     Surface(color = MaterialTheme.colorScheme.background, modifier = modifier) {
         val usuario = state.usuario
         val objetivo = state.objetivo
@@ -296,8 +304,19 @@ private fun TilePeso(etiqueta: String, valor: String, fondo: Color, modifier: Mo
 @Composable
 private fun TarjetaMeta(pesoActualKg: Float, objetivo: Objetivo) {
     val meta = remember(pesoActualKg, objetivo.metaKg, objetivo.plazo) {
-        CalcularMetaUseCase()(pesoActualKg, objetivo.metaKg, objetivo.plazo)
-    }
+        // El caso de uso lanza excepción con datos no válidos (por ejemplo, plazo 0):
+        // en ese caso no mostramos la tarjeta en vez de tirar la app.
+        if (objetivo.plazo < 1) {
+            null
+        } else {
+            try {
+                CalcularMetaUseCase()(pesoActualKg, objetivo.metaKg, objetivo.plazo)
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+        }
+    } ?: return
+
     KaloCard {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
             Text("Tu meta", style = MaterialTheme.typography.titleMedium)
