@@ -4,4 +4,5 @@ object Rutas {
     const val LOGIN = "login"
     const val REGISTRO = "registro"
     const val OBJETIVO = "objetivo"
+    const val AJUSTES = "ajustes"
 }

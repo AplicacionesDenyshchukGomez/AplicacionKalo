@@ -25,6 +25,7 @@ import com.DanielDMikelG.kalo.ui.screens.home.HomeScreen
 import com.DanielDMikelG.kalo.ui.screens.profile.ProfileRoute
 import com.DanielDMikelG.kalo.ui.screens.register.RegistroViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.DanielDMikelG.kalo.ui.screens.settings.SettingsScreen
 
 @Composable
 fun KaloApp() {
@@ -73,6 +74,22 @@ fun KaloApp() {
                             popUpTo(Rutas.LOGIN) { inclusive = true }
                         }
                     }
+                )
+            }
+            composable(Rutas.AJUSTES) {
+                SettingsScreen(
+                    onCerrar = { navController.popBackStack() },
+                    onEditarPerfil = {
+                        navController.previousBackStackEntry?.savedStateHandle?.set("editar_perfil", true)
+                        navController.popBackStack()
+                    },
+                    onCerrarSesion = {
+                        SesionManager(context).cerrarSesion()
+                        navController.navigate(Rutas.LOGIN) {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
 
