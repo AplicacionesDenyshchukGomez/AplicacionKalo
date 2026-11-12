@@ -1,31 +1,39 @@
 package com.DanielDMikelG.kalo.ui.screens.profile
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -38,19 +46,32 @@ import com.DanielDMikelG.kalo.domain.model.Objetivo
 import com.DanielDMikelG.kalo.domain.model.Sexo
 import com.DanielDMikelG.kalo.domain.model.TipoObjetivo
 import com.DanielDMikelG.kalo.domain.model.Usuario
+import com.DanielDMikelG.kalo.domain.usecase.CalcularMetaUseCase
+import com.DanielDMikelG.kalo.ui.components.EstadoMascota
 import com.DanielDMikelG.kalo.ui.components.KaloButton
 import com.DanielDMikelG.kalo.ui.components.KaloCard
+import com.DanielDMikelG.kalo.ui.components.KaloIconoRedondo
+import com.DanielDMikelG.kalo.ui.components.KaloMascot
 import com.DanielDMikelG.kalo.ui.components.KaloSecondaryButton
 import com.DanielDMikelG.kalo.ui.components.KaloTextField
 import com.DanielDMikelG.kalo.ui.theme.KaloTheme
 import com.DanielDMikelG.kalo.ui.theme.Spacing
 import java.time.LocalDate
+import java.util.Locale
+import kotlin.math.abs
 
-/** Punto de entrada: es lo que se llama desde la navegación. */
+/**
+ * Punto de entrada: es lo que se llama desde la navegación.
+ *
+ * [editarAlEntrar] lo pone Ajustes ("Mi perfil") para que al volver se abra el formulario;
+ * cuando ya se ha abierto avisamos con [onEdicionIniciada] para que no se repita.
+ */
 @Composable
 fun ProfileRoute(
-    onCerrarSesion: () -> Unit,
+    onAbrirAjustes: () -> Unit,
     modifier: Modifier = Modifier,
+    editarAlEntrar: Boolean = false,
+    onEdicionIniciada: () -> Unit = {},
 ) {
     val context = LocalContext.current.applicationContext
     val usuarioId = remember { SesionManager(context).usuarioActual() }
@@ -72,16 +93,19 @@ fun ProfileRoute(
     )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(editarAlEntrar, state.usuario, state.objetivo) {
+        if (editarAlEntrar && state.usuario != null && state.objetivo != null) {
+            viewModel.empezarEdicion()
+            onEdicionIniciada()
+        }
+    }
+
     ProfileContent(
         state = state,
-        onEditar = viewModel::empezarEdicion,
         onCancelar = viewModel::cancelarEdicion,
         onGuardar = viewModel::guardar,
         onFormChange = viewModel::actualizarForm,
-        onCerrarSesion = {
-            SesionManager(context).cerrarSesion()
-            onCerrarSesion()
-        },
+        onAbrirAjustes = onAbrirAjustes,
         modifier = modifier,
     )
 }
@@ -89,33 +113,43 @@ fun ProfileRoute(
 @Composable
 fun ProfileContent(
     state: ProfileUiState,
-    onEditar: () -> Unit,
     onCancelar: () -> Unit,
     onGuardar: () -> Unit,
     onFormChange: (ProfileFormState) -> Unit,
-    onCerrarSesion: () -> Unit = {},
+    onAbrirAjustes: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Surface(color = MaterialTheme.colorScheme.background, modifier = modifier) {
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .padding(Spacing.md),
-            verticalArrangement = Arrangement.spacedBy(Spacing.md),
-        ) {
-            Text("Perfil", style = MaterialTheme.typography.headlineMedium)
-
-            val usuario = state.usuario
-            val objetivo = state.objetivo
-            when {
-                state.cargando -> Text("Cargando...", style = MaterialTheme.typography.bodyLarge)
-                usuario == null || objetivo == null ->
-                    Text("No se encontró el perfil.", style = MaterialTheme.typography.bodyLarge)
-                state.editando -> FormContent(state, onGuardar, onCancelar, onFormChange)
-                else -> InfoContent(state, usuario, objetivo, onEditar, onCerrarSesion)
+        val usuario = state.usuario
+        val objetivo = state.objetivo
+        when {
+            state.cargando -> TextoCentrado("Cargando...")
+            usuario == null || objetivo == null -> TextoCentrado("No se encontró el perfil.")
+            state.editando -> Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .statusBarsPadding()
+                    .padding(Spacing.md),
+                verticalArrangement = Arrangement.spacedBy(Spacing.md),
+            ) {
+                Text("Editar perfil", style = MaterialTheme.typography.headlineMedium)
+                FormContent(state, onGuardar, onCancelar, onFormChange)
             }
+            else -> InfoContent(state, usuario, objetivo, onAbrirAjustes)
         }
     }
+}
+
+@Composable
+private fun TextoCentrado(texto: String) {
+    Text(
+        texto,
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding()
+            .padding(Spacing.md),
+    )
 }
 
 @Composable
@@ -123,52 +157,155 @@ private fun InfoContent(
     state: ProfileUiState,
     usuario: Usuario,
     objetivo: Objetivo,
-    onEditar: () -> Unit,
-    onCerrarSesion: () -> Unit,
+    onAbrirAjustes: () -> Unit,
 ) {
-    state.mensaje?.let {
-        Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
-    }
-    KaloCard {
-        Text("Tus datos", style = MaterialTheme.typography.titleMedium)
-        InfoRow("Nombre", usuario.nombre)
-        InfoRow("Email", usuario.email)
-        InfoRow("Nacimiento", "${usuario.fechaNacimiento.formatear()} (${usuario.edad()} años)")
-        InfoRow("Sexo", usuario.sexo.etiqueta)
-        InfoRow("Altura", "${usuario.altura} cm")
-        InfoRow(
-            "Peso actual",
-            state.pesoActualKg?.let { "${it.sinDecimalesInnecesarios()} kg" } ?: "— (sin registros)",
-        )
-    }
-    KaloCard {
-        Text("Tus objetivos", style = MaterialTheme.typography.titleMedium)
-        InfoRow("Objetivo", objetivo.tipo.etiqueta)
-        InfoRow("Actividad", usuario.nivelActividad.etiqueta)
-        InfoRow("Meta de peso", "${objetivo.metaKg.sinDecimalesInnecesarios()} kg")
-        InfoRow("Plazo", "${objetivo.plazo} semanas")
-        InfoRow("Meta de agua", "${objetivo.aguaMeta} ml")
-        InfoRow("Calorías objetivo", objetivo.kcalDiarias?.let { "$it kcal" } ?: "— (pendiente)")
-    }
-    KaloButton(text = "Editar datos", onClick = onEditar)
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        CabeceraPerfil(usuario, objetivo, onAbrirAjustes)
 
-    var confirmarCierre by rememberSaveable { mutableStateOf(false) }
-    KaloSecondaryButton(text = "Cerrar sesión", onClick = { confirmarCierre = true })
-    if (confirmarCierre) {
-        AlertDialog(
-            onDismissRequest = { confirmarCierre = false },
-            title = { Text("Cerrar sesión") },
-            text = { Text("¿Seguro? Tus datos se quedan guardados en este móvil.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmarCierre = false
-                    onCerrarSesion()
-                }) { Text("Cerrar sesión") }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmarCierre = false }) { Text("Cancelar") }
-            },
+        Column(
+            modifier = Modifier.padding(Spacing.md),
+            verticalArrangement = Arrangement.spacedBy(Spacing.md),
+        ) {
+            state.mensaje?.let {
+                Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+            }
+            TarjetaPeso(state.pesoActualKg, objetivo.metaKg)
+            state.pesoActualKg?.let { TarjetaMeta(it, objetivo) }
+
+            KaloCard {
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                    Text("Tus datos", style = MaterialTheme.typography.titleMedium)
+                    InfoRow("Email", usuario.email)
+                    InfoRow("Nacimiento", "${usuario.fechaNacimiento.formatear()} (${usuario.edad()} años)")
+                    InfoRow("Sexo", usuario.sexo.etiqueta)
+                    InfoRow("Altura", "${usuario.altura} cm")
+                    InfoRow("Actividad", usuario.nivelActividad.etiqueta)
+                    InfoRow("Meta de agua", "${objetivo.aguaMeta} ml")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CabeceraPerfil(usuario: Usuario, objetivo: Objetivo, onAbrirAjustes: () -> Unit) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier
+                .statusBarsPadding()
+                .padding(start = 20.dp, top = 24.dp, end = 20.dp, bottom = 28.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text("Perfil", style = MaterialTheme.typography.headlineLarge)
+                KaloIconoRedondo(Icons.Default.Settings, "Abrir ajustes", onAbrirAjustes)
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(128.dp)
+                    .background(MaterialTheme.colorScheme.background, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                KaloMascot(estado = EstadoMascota.CONTENTA, tamano = 96.dp)
+            }
+
+            Text(usuario.nombre, style = MaterialTheme.typography.headlineMedium)
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Pastilla(objetivo.tipo.etiqueta)
+                Pastilla(
+                    texto = objetivo.kcalDiarias?.let { "$it kcal al día" } ?: "Kcal pendientes",
+                    borde = BorderStroke(2.dp, Color(0xFFFFD966)),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Pastilla(texto: String, borde: BorderStroke? = null) {
+    Surface(
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surface,
+        border = borde,
+    ) {
+        Text(
+            texto,
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
         )
+    }
+}
+
+@Composable
+private fun TarjetaPeso(pesoActualKg: Float?, metaKg: Float) {
+    KaloCard {
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+            Text("Tu peso", style = MaterialTheme.typography.titleMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                TilePeso(
+                    etiqueta = "Actual",
+                    valor = pesoActualKg?.aTexto() ?: "—",
+                    fondo = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.weight(1f),
+                )
+                TilePeso(
+                    etiqueta = "Objetivo",
+                    valor = metaKg.aTexto(),
+                    fondo = Color(0xFFDDF0FF), // azul pastel (mismo que los carbohidratos)
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            if (pesoActualKg == null) {
+                Text(
+                    "Aún no has registrado tu peso.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TilePeso(etiqueta: String, valor: String, fondo: Color, modifier: Modifier = Modifier) {
+    Surface(color = fondo, shape = MaterialTheme.shapes.medium, modifier = modifier) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp, horizontal = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(etiqueta, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(valor, style = MaterialTheme.typography.headlineSmall)
+            Text("kg", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Composable
+private fun TarjetaMeta(pesoActualKg: Float, objetivo: Objetivo) {
+    val meta = remember(pesoActualKg, objetivo.metaKg, objetivo.plazo) {
+        CalcularMetaUseCase()(pesoActualKg, objetivo.metaKg, objetivo.plazo)
+    }
+    KaloCard {
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+            Text("Tu meta", style = MaterialTheme.typography.titleMedium)
+            InfoRow("Ritmo semanal", "${abs(meta.kgPorSemana).aTexto(2)} kg / semana")
+            InfoRow("Plazo", "${objetivo.plazo} semanas")
+            // Si NivelRitmo tiene su propia etiqueta, úsala aquí en vez del nombre del enum
+            InfoRow("Ritmo", meta.nivel.name.lowercase().replace('_', ' ').replaceFirstChar { it.uppercase() })
+        }
     }
 }
 
@@ -212,13 +349,11 @@ private fun FormContent(
 @Composable
 private fun InfoRow(etiqueta: String, valor: String) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = Spacing.sm),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(etiqueta, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(valor, style = MaterialTheme.typography.bodyLarge)
+        Text(valor, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.End)
     }
 }
 
@@ -255,6 +390,9 @@ private fun <T> OpcionesRadio(
     }
 }
 
+private fun Float.aTexto(decimales: Int = 1): String =
+    String.format(Locale.getDefault(), "%.${decimales}f", this)
+
 private val usuarioEjemplo = Usuario(
     id = 1, email = "daniel@kalo.com", nombre = "Daniel",
     fechaNacimiento = LocalDate.of(2000, 1, 15), sexo = Sexo.HOMBRE,
@@ -265,13 +403,19 @@ private val objetivoEjemplo = Objetivo(
     metaKg = 75f, plazo = 12, kcalDiarias = 2400, aguaMeta = 2000,
 )
 private val estadoEjemplo = ProfileUiState(
-    cargando = false, usuario = usuarioEjemplo, objetivo = objetivoEjemplo, pesoActualKg = 75f,
+    cargando = false, usuario = usuarioEjemplo, objetivo = objetivoEjemplo, pesoActualKg = 78.4f,
 )
 
-@Preview(name = "Perfil claro", showBackground = true)
+@Preview(name = "Perfil claro", showBackground = true, heightDp = 900)
 @Composable
 private fun ProfileLightPreview() {
-    KaloTheme(darkTheme = false) { ProfileContent(estadoEjemplo, {}, {}, {}, {}) }
+    KaloTheme(darkTheme = false) { ProfileContent(estadoEjemplo, {}, {}, {}) }
+}
+
+@Preview(name = "Perfil oscuro", showBackground = true, heightDp = 900, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ProfileDarkPreview() {
+    KaloTheme(darkTheme = true) { ProfileContent(estadoEjemplo, {}, {}, {}) }
 }
 
 @Preview(name = "Edicion oscuro", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -286,7 +430,7 @@ private fun ProfileEditDarkPreview() {
                     metaKg = "75", plazo = "12", aguaMeta = "2000",
                 ),
             ),
-            {}, {}, {}, {},
+            {}, {}, {},
         )
     }
 }

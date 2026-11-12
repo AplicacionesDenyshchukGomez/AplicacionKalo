@@ -24,6 +24,7 @@ import com.DanielDMikelG.kalo.data.local.SesionManager
 import com.DanielDMikelG.kalo.ui.screens.home.HomeScreen
 import com.DanielDMikelG.kalo.ui.screens.profile.ProfileRoute
 import com.DanielDMikelG.kalo.ui.screens.register.RegistroViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun KaloApp() {
@@ -78,13 +79,15 @@ fun KaloApp() {
             composable(Destino.Home.ruta) { HomeScreen() }
             composable(Destino.Diary.ruta) { PantallaVacia("Diario") }
             composable(Destino.Kitchen.ruta) { PantallaVacia("Cocina") }
-            composable(Destino.Profile.ruta) {
+            composable(Destino.Profile.ruta) { entry ->
+                val editar by entry.savedStateHandle
+                    .getStateFlow("editar_perfil", false)
+                    .collectAsStateWithLifecycle()
+
                 ProfileRoute(
-                    onCerrarSesion = {
-                        navController.navigate(Rutas.LOGIN) {
-                            popUpTo(navController.graph.id) { inclusive = true }
-                        }
-                    },
+                    onAbrirAjustes = { navController.navigate(Rutas.AJUSTES) },
+                    editarAlEntrar = editar,
+                    onEdicionIniciada = { entry.savedStateHandle["editar_perfil"] = false },
                     modifier = Modifier.fillMaxSize(),
                 )
             }
