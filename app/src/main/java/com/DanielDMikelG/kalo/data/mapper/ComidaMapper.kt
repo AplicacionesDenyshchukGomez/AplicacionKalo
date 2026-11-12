@@ -1,9 +1,11 @@
 package com.DanielDMikelG.kalo.data.mapper
 
 import com.DanielDMikelG.kalo.data.local.entity.ComidaEntity
-import com.DanielDMikelG.kalo.data.local.relation.ComidaConEntradas
-import com.DanielDMikelG.kalo.data.local.relation.EntradaConAlimento
+import com.DanielDMikelG.kalo.data.local.relation.ComidaConEntradas as ComidaConEntradasRelation
+import com.DanielDMikelG.kalo.data.local.relation.EntradaConAlimento as EntradaConAlimentoRelation
 import com.DanielDMikelG.kalo.domain.model.Comida
+import com.DanielDMikelG.kalo.domain.model.ComidaConEntradas
+import com.DanielDMikelG.kalo.domain.model.EntradaConAlimento
 import java.time.LocalDate
 
 fun ComidaEntity.toDomain() = Comida(
@@ -20,12 +22,12 @@ fun Comida.toEntity() = ComidaEntity(
     tipo = tipo
 )
 
-fun EntradaConAlimento.toDomain() = EntradaConAlimento(
-    entrada = entrada,
-    alimento = alimento
+fun EntradaConAlimentoRelation.toDomain() = EntradaConAlimento(
+    entrada = entrada.toDomain(),      // EntradaComidaEntity -> EntradaComida
+    alimento = alimento.toDomain()     // AlimentoEntity -> Alimento
 )
 
-fun ComidaConEntradas.toDomain() = ComidaConEntradas(
-    comida = comida,
+fun ComidaConEntradasRelation.toDomain() = ComidaConEntradas(
+    comida = comida.toDomain(),        // ComidaEntity -> Comida
     entradas = entradas.map { it.toDomain() }
 )
