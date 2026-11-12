@@ -1,24 +1,36 @@
 package com.DanielDMikelG.kalo.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.DanielDMikelG.kalo.ui.theme.Spacing
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+/** Botón principal: relleno de verde, de ancho completo y con forma de píldora. */
 @Composable
 fun KaloButton(
     text: String,
@@ -28,14 +40,22 @@ fun KaloButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().height(48.dp),
+        modifier = modifier.fillMaxWidth().height(52.dp),
         enabled = enabled,
-        shape = RoundedCornerShape(12.dp),
-    ) { Text(text, style = MaterialTheme.typography.labelLarge) }
+        shape = CircleShape,
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
+        ),
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.ExtraBold),
+        )
+    }
 }
 
-//Botón principal, relleno de verde, de ancho completo y esquinas redondeadas
-
+/** Botón secundario: solo el borde verde, también en píldora. */
 @Composable
 fun KaloSecondaryButton(
     text: String,
@@ -45,13 +65,26 @@ fun KaloSecondaryButton(
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().height(48.dp),
+        modifier = modifier.fillMaxWidth().height(52.dp),
         enabled = enabled,
-        shape = RoundedCornerShape(12.dp),
-    ) { Text(text, style = MaterialTheme.typography.labelLarge) }
+        shape = CircleShape,
+        border = BorderStroke(
+            width = 2.dp,
+            color = if (enabled) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.outline
+            },
+        ),
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.ExtraBold),
+        )
+    }
 }
 
-//Botón con solo el borde
+/** Tarjeta blanca de esquinas muy redondeadas, con borde fino en vez de sombra. */
 @Composable
 fun KaloCard(
     modifier: Modifier = Modifier,
@@ -59,15 +92,16 @@ fun KaloCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
     ) {
-        Column(modifier = Modifier.padding(Spacing.md), content = content)
+        Column(modifier = Modifier.padding(20.dp), content = content)
     }
 }
 
-//Tarjeta blanca con esquinas redondeadas, sombra suave y relleno interior
+/** Campo de texto redondeado, con etiqueta y opción de mostrar un mensaje de error. */
 @Composable
 fun KaloTextField(
     value: String,
@@ -84,21 +118,46 @@ fun KaloTextField(
         singleLine = true,
         isError = error != null,
         supportingText = { if (error != null) Text(error) },
-        shape = RoundedCornerShape(12.dp),
+        shape = MaterialTheme.shapes.medium,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+        ),
     )
 }
 
-//Campo de texto con etiqueta y opción de mostrar un mensaje de error
+/**
+ * Barra de progreso gordita y redondeada. Recibe un valor de 0 a 1 y se anima al cambiar.
+ * Los colores y el alto son opcionales (por ejemplo, para pintarla del color de un macro).
+ */
 @Composable
 fun KaloProgressBar(
     progress: Float,
     modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary,
+    trackColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    alto: Dp = 14.dp,
 ) {
-    LinearProgressIndicator(
-        progress = { progress.coerceIn(0f, 1f) },
-        modifier = modifier.fillMaxWidth().height(10.dp),
-        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+    val fraccion by animateFloatAsState(
+        targetValue = progress.coerceIn(0f, 1f),
+        animationSpec = tween(durationMillis = 600),
+        label = "progreso",
     )
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(alto)
+            .clip(CircleShape)
+            .background(trackColor),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(fraccion)
+                .fillMaxHeight()
+                .clip(CircleShape)
+                .background(color),
+        )
+    }
 }
-
-//Barra de progreso horizontal que recibe un valor de 0 a 1
