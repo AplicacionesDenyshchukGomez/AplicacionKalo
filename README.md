@@ -1,5 +1,4 @@
 # AplicacionKalo
-Kalo <br>
 Aplicación móvil de nutrición y conteo de calorías, desarrollada en Kotlin.<br><br>
 
 Descripción<br>
