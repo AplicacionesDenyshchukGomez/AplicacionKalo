@@ -37,6 +37,8 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.DanielDMikelG.kalo.data.local.KaloDatabase
 import com.DanielDMikelG.kalo.data.repository.AlimentoRepository
+import com.DanielDMikelG.kalo.ui.screens.diary.DiarioRoute
+import com.DanielDMikelG.kalo.ui.screens.diary.DiarioViewModel
 import com.DanielDMikelG.kalo.ui.screens.product.FichaProductoRoute
 import com.DanielDMikelG.kalo.ui.screens.product.FichaProductoViewModel
 import com.DanielDMikelG.kalo.ui.screens.product.ModoFicha
@@ -145,16 +147,18 @@ fun KaloApp() {
 
             composable(Destino.Home.ruta) { HomeScreen() }
             composable(Destino.Diary.ruta) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Button(onClick = { navController.navigate(Rutas.escaner("consulta")) }) {
-                            Text("Escanear producto (prueba)")
-                        }
-                        Spacer(Modifier.height(12.dp))
-                        Button(onClick = { navController.navigate(Rutas.escaner("anadir")) }) {
-                            Text("Escanear para añadir (prueba)")
-                        }
-                    }
+                val usuarioId = remember { SesionManager(context).usuarioActual() }
+                if (usuarioId == null) {
+                    PantallaVacia("Diario")
+                } else {
+                    val viewModel: DiarioViewModel = viewModel(
+                        factory = DiarioViewModel.Factory(usuarioId, KaloDatabase.obtener(context))
+                    )
+                    DiarioRoute(
+                        viewModel = viewModel,
+                        // Temporal: hasta que exista "Añadir comida" (#95), el + abre el escáner
+                        onAnadirComida = { navController.navigate(Rutas.escaner("anadir")) },
+                    )
                 }
             }
             composable(Destino.Kitchen.ruta) { PantallaVacia("Cocina") }
