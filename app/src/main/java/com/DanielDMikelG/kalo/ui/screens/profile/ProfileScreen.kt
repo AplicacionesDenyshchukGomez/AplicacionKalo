@@ -62,6 +62,8 @@ import kotlin.math.abs
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.DanielDMikelG.kalo.ui.components.TecladoKalo
+import com.DanielDMikelG.kalo.util.EntradaNumerica
 
 /**
  * Punto de entrada: es lo que se llama desde la navegación.
@@ -343,10 +345,10 @@ private fun FormContent(
         f.fechaNacimiento, { onFormChange(f.copy(fechaNacimiento = it)) },
         "Fecha de nacimiento (dd/mm/aaaa)", error = e.fechaNacimiento,
     )
-    KaloTextField(f.altura, { onFormChange(f.copy(altura = it)) }, "Altura (cm)", error = e.altura)
-    KaloTextField(f.metaKg, { onFormChange(f.copy(metaKg = it)) }, "Meta de peso (kg)", error = e.metaKg)
-    KaloTextField(f.plazo, { onFormChange(f.copy(plazo = it)) }, "Plazo (semanas)", error = e.plazo)
-    KaloTextField(f.aguaMeta, { onFormChange(f.copy(aguaMeta = it)) }, "Meta de agua (ml)", error = e.aguaMeta)
+    KaloTextField(f.altura, { onFormChange(f.copy(altura = EntradaNumerica.entero(it, 3))) }, "Altura (cm)", error = e.altura, keyboardOptions = TecladoKalo.Entero)
+    KaloTextField(f.metaKg, { onFormChange(f.copy(metaKg = EntradaNumerica.decimal(it))) }, "Meta de peso (kg)", error = e.metaKg, keyboardOptions = TecladoKalo.Decimal)
+    KaloTextField(f.plazo, { onFormChange(f.copy(plazo = EntradaNumerica.entero(it, 3))) }, "Plazo (semanas)", error = e.plazo, keyboardOptions = TecladoKalo.Entero)
+    KaloTextField(f.aguaMeta, { onFormChange(f.copy(aguaMeta = EntradaNumerica.entero(it, 4))) }, "Meta de agua (ml)", error = e.aguaMeta, keyboardOptions = TecladoKalo.Entero)
 
     OpcionesRadio("Sexo", Sexo.entries, f.sexo, { it.etiqueta }) { onFormChange(f.copy(sexo = it)) }
     OpcionesRadio("Objetivo", TipoObjetivo.entries, f.tipo, { it.etiqueta }) { onFormChange(f.copy(tipo = it)) }
