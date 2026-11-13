@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -22,18 +23,26 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.DanielDMikelG.kalo.domain.model.TipoObjetivo
 import com.DanielDMikelG.kalo.ui.components.CampoTexto
+import com.DanielDMikelG.kalo.ui.components.KaloTextField
 import com.DanielDMikelG.kalo.ui.components.SelectorOpciones
+import com.DanielDMikelG.kalo.ui.components.TecladoKalo
 import com.DanielDMikelG.kalo.ui.components.comoTexto
+import com.DanielDMikelG.kalo.ui.screens.profile.ProfileFormState
+import com.DanielDMikelG.kalo.ui.screens.profile.ProfileUiState
 import com.DanielDMikelG.kalo.ui.screens.register.RegistroViewModel
 import com.DanielDMikelG.kalo.util.EntradaNumerica
 
 @Composable
 fun ObjectiveScreen(
+    state: ProfileUiState,
     viewModel: RegistroViewModel,
-    onTerminar: () -> Unit
+    onTerminar: () -> Unit,
+    onFormChange: (ProfileFormState) -> Unit,
 ) {
     val estado by viewModel.estado.collectAsState()
     val necesitaMeta = estado.tipoObjetivo != null && estado.tipoObjetivo != TipoObjetivo.MANTENER
+    val f = state.form
+    val e = state.errores
 
     Column(
         modifier = Modifier
@@ -54,15 +63,13 @@ fun ObjectiveScreen(
 
         if (necesitaMeta) {
             Spacer(Modifier.height(16.dp))
-            CampoTexto(
-                estado.metaKg, { viewModel.actualizar { s -> s.copy(metaKg = EntradaNumerica.decimal(it)) } },
-                "Peso objetivo (kg)", tipoTeclado = KeyboardType.Decimal
-            )
+            KaloTextField(f.metaKg, { onFormChange(f.copy(metaKg = EntradaNumerica.decimal(it))) },
+                "Meta de peso (kg)", error = e.metaKg, keyboardOptions = TecladoKalo.Decimal)
+
             Spacer(Modifier.height(12.dp))
-            CampoTexto(
-                estado.plazo, { viewModel.actualizar { s -> s.copy(plazo = EntradaNumerica.entero(it, 3)) } },
-                "Plazo (semanas)", tipoTeclado = KeyboardType.Number
-            )
+            KaloTextField(f.plazo, { onFormChange(f.copy(plazo = EntradaNumerica.entero(it, 3))) },
+                "Plazo (semanas)", error = e.plazo, keyboardOptions = TecladoKalo.Entero)
+
         }
 
         estado.error?.let {
