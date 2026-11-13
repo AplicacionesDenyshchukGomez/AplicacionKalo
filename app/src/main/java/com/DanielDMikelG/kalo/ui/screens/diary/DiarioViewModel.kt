@@ -14,6 +14,7 @@ import com.DanielDMikelG.kalo.domain.model.RegistroPeso
 import com.DanielDMikelG.kalo.domain.model.Usuario
 import com.DanielDMikelG.kalo.domain.usecase.CalcularCaloriasUseCase
 import java.time.LocalDate
+import kotlin.math.abs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -70,6 +71,18 @@ class DiarioViewModel(
 
     fun quitarVaso() {
         viewModelScope.launch { agua.quitarVaso(usuarioId, fecha.value) }
+    }
+
+    /** Deja el total de vasos del día en [total], sumando o quitando de uno en uno. */
+    fun ponerVasos(total: Int) {
+        val objetivo = total.coerceAtLeast(0)
+        val actual = estado.value.vasos
+        viewModelScope.launch {
+            repeat(abs(objetivo - actual)) {
+                if (objetivo > actual) agua.añadirVaso(usuarioId, fecha.value)
+                else agua.quitarVaso(usuarioId, fecha.value)
+            }
+        }
     }
 
     // ---- Entradas ----
