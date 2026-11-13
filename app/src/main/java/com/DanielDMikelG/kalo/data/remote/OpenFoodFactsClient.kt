@@ -1,5 +1,7 @@
 package com.DanielDMikelG.kalo.data.remote
 
+import com.DanielDMikelG.kalo.domain.model.MIN_CARACTERES_BUSQUEDA
+import com.DanielDMikelG.kalo.domain.model.ResultadoBusqueda
 import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
 import okhttp3.OkHttpClient
@@ -49,6 +51,36 @@ class OpenFoodFactsClient(
             ResultadoProducto.SinConexion
         } catch (e: Exception) {
             ResultadoProducto.Error(e.message ?: "Error desconocido")
+        }
+    }
+
+    suspend fun buscarPorNombre(texto: String): ResultadoBusqueda {
+        val limpio = texto.trim()
+        if (limpio.length < MIN_CARACTERES_BUSQUEDA) return ResultadoBusqueda.TextoCorto
+        return try {
+            val alimentos = api.buscarPorNombre(limpio)
+                .products
+                .orEmpty()
+                // Sin código no podemos abrir la ficha, y sin kcal o nombre no sirve de nada.
+                .mapNotNull { dto -> dto.code?.let { dto.toProductoRemoto(it) } }
+                .map { it.alimento }
+                .distinctBy { it.codigoBarras }
+            if (alimentos.isEmpty()) ResultadoBusqueda.SinResultados
+            else ResultadoBusqueda.Encontrados(alimentos)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: HttpException) {
+            if (e.code() == 429 || e.code() == 503) {
+                ResultadoBusqueda.Error(
+                    "Open Food Facts recibe demasiadas peticiones. Espera unos segundos."
+                )
+            } else {
+                ResultadoBusqueda.Error("Error del servidor (${e.code()})")
+            }
+        } catch (e: IOException) {
+            ResultadoBusqueda.SinConexion
+        } catch (e: Exception) {
+            ResultadoBusqueda.Error(e.message ?: "Error desconocido")
         }
     }
 }
