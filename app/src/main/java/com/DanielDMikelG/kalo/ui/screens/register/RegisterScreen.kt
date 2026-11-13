@@ -29,14 +29,23 @@ import com.DanielDMikelG.kalo.ui.components.CampoTexto
 import com.DanielDMikelG.kalo.ui.components.SelectorOpciones
 import com.DanielDMikelG.kalo.ui.components.comoTexto
 import androidx.compose.runtime.collectAsState
+import com.DanielDMikelG.kalo.ui.components.KaloTextField
+import com.DanielDMikelG.kalo.ui.components.TecladoKalo
+import com.DanielDMikelG.kalo.ui.screens.profile.ProfileFormState
+import com.DanielDMikelG.kalo.ui.screens.profile.ProfileUiState
+import com.DanielDMikelG.kalo.util.EntradaNumerica
 
 @Composable
 fun RegisterScreen(
     viewModel: RegistroViewModel,
     onContinuar: () -> Unit,
-    onVolver: () -> Unit
+    onVolver: () -> Unit,
+    state: ProfileUiState,
+    onFormChange: (ProfileFormState) -> Unit,
 ) {
     val estado by viewModel.estado.collectAsState()
+    val f = state.form
+    val e = state.errores
 
     Column(
         modifier = Modifier
@@ -67,10 +76,9 @@ fun RegisterScreen(
             "Peso (kg)", tipoTeclado = KeyboardType.Decimal
         )
         Spacer(Modifier.height(12.dp))
-        CampoTexto(
-            estado.altura, { viewModel.actualizar { s -> s.copy(altura = it) } },
-            "Altura (cm)", tipoTeclado = KeyboardType.Number
-        )
+        KaloTextField(f.altura, { onFormChange(f.copy(altura = EntradaNumerica.entero(it, 3))) },
+            "Altura (cm)", error = e.altura, keyboardOptions = TecladoKalo.Entero)
+
         Spacer(Modifier.height(16.dp))
 
         SelectorOpciones(
