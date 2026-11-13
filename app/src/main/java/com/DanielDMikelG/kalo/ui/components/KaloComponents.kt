@@ -29,6 +29,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+
+object TecladoKalo {
+    val Texto = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next)
+    val Entero = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next)
+    val Decimal = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next)
+}
 
 /** Botón principal: relleno de verde, de ancho completo y con forma de píldora. */
 @Composable
@@ -109,12 +118,14 @@ fun KaloTextField(
     label: String,
     modifier: Modifier = Modifier,
     error: String? = null,
+    keyboardOptions: KeyboardOptions = TecladoKalo.Texto,
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
         modifier = modifier.fillMaxWidth(),
+        keyboardOptions = keyboardOptions,
         singleLine = true,
         isError = error != null,
         supportingText = { if (error != null) Text(error) },

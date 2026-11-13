@@ -25,6 +25,7 @@ import com.DanielDMikelG.kalo.ui.components.CampoTexto
 import com.DanielDMikelG.kalo.ui.components.SelectorOpciones
 import com.DanielDMikelG.kalo.ui.components.comoTexto
 import com.DanielDMikelG.kalo.ui.screens.register.RegistroViewModel
+import com.DanielDMikelG.kalo.util.EntradaNumerica
 
 @Composable
 fun ObjectiveScreen(
@@ -54,12 +55,12 @@ fun ObjectiveScreen(
         if (necesitaMeta) {
             Spacer(Modifier.height(16.dp))
             CampoTexto(
-                estado.metaKg, { viewModel.actualizar { s -> s.copy(metaKg = it) } },
+                estado.metaKg, { viewModel.actualizar { s -> s.copy(metaKg = EntradaNumerica.decimal(it)) } },
                 "Peso objetivo (kg)", tipoTeclado = KeyboardType.Decimal
             )
             Spacer(Modifier.height(12.dp))
             CampoTexto(
-                estado.plazo, { viewModel.actualizar { s -> s.copy(plazo = it) } },
+                estado.plazo, { viewModel.actualizar { s -> s.copy(plazo = EntradaNumerica.entero(it, 3)) } },
                 "Plazo (semanas)", tipoTeclado = KeyboardType.Number
             )
         }
