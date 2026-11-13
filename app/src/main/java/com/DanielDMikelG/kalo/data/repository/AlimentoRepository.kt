@@ -9,6 +9,7 @@ import com.DanielDMikelG.kalo.data.remote.ResultadoProducto
 import com.DanielDMikelG.kalo.domain.model.Alimento
 import com.DanielDMikelG.kalo.domain.model.OrigenAlimento
 import com.DanielDMikelG.kalo.domain.model.ResultadoAlimento
+import com.DanielDMikelG.kalo.domain.model.ResultadoBusqueda
 import com.DanielDMikelG.kalo.util.ValidadorCodigoBarras
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -76,4 +77,6 @@ class AlimentoRepository(
         if (codigo.length == 12) "0$codigo" else null,
         if (codigo.length == 13 && codigo.startsWith("0")) codigo.drop(1) else null,
     )
+
+    suspend fun buscarEnLinea(texto: String): ResultadoBusqueda = remoto.buscarPorNombre(texto)
 }
