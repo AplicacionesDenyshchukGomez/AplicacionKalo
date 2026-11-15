@@ -7,20 +7,13 @@ class CalcularRachaUseCase {
         fechasConRegistro: Collection<LocalDate>,
         hoy: LocalDate = LocalDate.now()
     ): Int {
-        val fechas = fechasConRegistro.filter { !it.isAfter(hoy) }.toSet()
-
-        // Si hoy aún no has registrado nada, la racha sigue viva si ayer sí
-        var dia = when {
-            hoy in fechas -> hoy
-            hoy.minusDays(1) in fechas -> hoy.minusDays(1)
-            else -> return 0
-        }
-
-        var dias = 0
+        val fechas = fechasConRegistro.toSet()
+        var dia = if (hoy in fechas) hoy else hoy.minusDays(1)
+        var racha = 0
         while (dia in fechas) {
-            dias++
+            racha++
             dia = dia.minusDays(1)
         }
-        return dias
+        return racha
     }
 }

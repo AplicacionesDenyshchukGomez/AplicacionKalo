@@ -49,6 +49,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.DanielDMikelG.kalo.data.local.KaloDatabase
 import com.DanielDMikelG.kalo.data.local.SesionManager
+import com.DanielDMikelG.kalo.data.repository.ComidaRepository
 import com.DanielDMikelG.kalo.data.repository.UsuarioRepository
 import com.DanielDMikelG.kalo.ui.components.EstadoMascota
 import com.DanielDMikelG.kalo.ui.components.KaloCard
@@ -109,10 +110,11 @@ fun InicioRoute(
         return
     }
 
+    val db = remember { KaloDatabase.obtener(context) }
     val viewModel: InicioViewModel = viewModel(
         key = "inicio_$usuarioId",
         factory = viewModelFactory {
-            initializer { InicioViewModel(UsuarioRepository(KaloDatabase.obtener(context)), usuarioId) }
+            initializer { InicioViewModel(UsuarioRepository(db), usuarioId, ComidaRepository(db)) }
         },
     )
     val estado by viewModel.estado.collectAsStateWithLifecycle()
