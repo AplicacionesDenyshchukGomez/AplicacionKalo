@@ -134,10 +134,10 @@ fun DiarioRoute(
     viewModel: DiarioViewModel,
     onAnadirComida: (TipoComida, LocalDate) -> Unit,
     modifier: Modifier = Modifier,
-    racha: Int? = null,
     mascota: @Composable () -> Unit = { MascotaKalo() },
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
+    val racha by viewModel.racha.collectAsStateWithLifecycle()
     DiarioScreen(
         estado = estado,
         onDiaAnterior = viewModel::diaAnterior,

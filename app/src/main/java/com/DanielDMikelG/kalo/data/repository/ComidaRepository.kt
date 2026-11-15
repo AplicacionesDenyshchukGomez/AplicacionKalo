@@ -22,6 +22,10 @@ class ComidaRepository(private val db: KaloDatabase) {
 
     // ---- Lectura ----
 
+    fun observarFechasConRegistro(usuarioId: Long): Flow<List<LocalDate>> =
+        comidaDao.observarFechasConRegistros(usuarioId).map { lista ->
+            lista.mapNotNull { runCatching { LocalDate.parse(it) }.getOrNull() }
+        }
     fun observarDia(usuarioId: Long, fecha: LocalDate = LocalDate.now()): Flow<List<ComidaConEntradas>> =
         comidaDao.observarDia(usuarioId, fecha.toString()).map { lista -> lista.map { it.toDomain() } }
 

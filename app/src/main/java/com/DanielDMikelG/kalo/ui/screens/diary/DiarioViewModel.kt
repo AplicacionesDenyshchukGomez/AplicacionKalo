@@ -13,6 +13,7 @@ import com.DanielDMikelG.kalo.domain.model.Objetivo
 import com.DanielDMikelG.kalo.domain.model.RegistroPeso
 import com.DanielDMikelG.kalo.domain.model.Usuario
 import com.DanielDMikelG.kalo.domain.usecase.CalcularCaloriasUseCase
+import com.DanielDMikelG.kalo.domain.usecase.CalcularRachaUseCase
 import java.time.LocalDate
 import kotlin.math.abs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -31,12 +33,18 @@ class DiarioViewModel(
     private val comidas: ComidaRepository,
     private val agua: AguaRepository,
     private val calcularCalorias: CalcularCaloriasUseCase = CalcularCaloriasUseCase(),
-) : ViewModel() {
+    private val calcularRacha: CalcularRachaUseCase = CalcularRachaUseCase(),
+    ) : ViewModel() {
 
     private val fecha = MutableStateFlow(LocalDate.now())
 
     // Últimos datos del día mostrado, para localizar una entrada por su id al borrarla o editarla
     private var comidasDelDia: List<ComidaConEntradas> = emptyList()
+
+    /** Días seguidos con alguna comida registrada; se actualiza sola al añadir o borrar. */
+    val racha: StateFlow<Int> = comidas.observarFechasConRegistro(usuarioId)
+        .map { calcularRacha(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
 
     val estado: StateFlow<DiarioUiState> = fecha
         .flatMapLatest { dia ->
