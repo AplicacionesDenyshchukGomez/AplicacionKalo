@@ -20,6 +20,10 @@ object Rutas {
 
     const val MIS_ALIMENTOS = "mis_alimentos"
 
+    const val ANADIR_COMIDA = "anadir_comida"
+
+    const val CANTIDAD = "cantidad"
+
     fun escaner(modo: String) = "escaner/$modo"
 
     fun ficha(codigo: String, modo: String) = "ficha/$codigo/$modo"

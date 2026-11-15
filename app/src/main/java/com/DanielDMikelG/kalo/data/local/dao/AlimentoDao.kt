@@ -28,4 +28,7 @@ interface AlimentoDao {
 
     @Query("SELECT * FROM alimento WHERE origen = :origen ORDER BY nombre")
     fun listarPorOrigen(origen: OrigenAlimento): Flow<List<AlimentoEntity>>
+
+    @Query("SELECT * FROM alimento ORDER BY id DESC LIMIT 10")
+    fun recientes(): Flow<List<AlimentoEntity>>
 }

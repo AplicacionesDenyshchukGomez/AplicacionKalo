@@ -132,7 +132,7 @@ private val FIBRA = EstiloMacro("F", "Fibra", "Fibra", Color(0xFFD9B38C), Color(
 @Composable
 fun DiarioRoute(
     viewModel: DiarioViewModel,
-    onAnadirComida: (TipoComida) -> Unit,
+    onAnadirComida: (TipoComida, LocalDate) -> Unit,
     modifier: Modifier = Modifier,
     racha: Int? = null,
     mascota: @Composable () -> Unit = { MascotaKalo() },
@@ -157,7 +157,7 @@ fun DiarioScreen(
     estado: DiarioUiState,
     onDiaAnterior: () -> Unit,
     onDiaSiguiente: () -> Unit,
-    onAnadirComida: (TipoComida) -> Unit,
+    onAnadirComida: (TipoComida, LocalDate) -> Unit,
     onPonerVasos: (Int) -> Unit,
     onBorrarEntrada: (Long) -> Unit,
     onEditarCantidad: (Long, Float) -> Unit,
@@ -191,7 +191,7 @@ fun DiarioScreen(
                     TarjetaComida(
                         comida = comida,
                         kcalDia = estado.kcalObjetivo,
-                        onAnadir = { onAnadirComida(comida.tipo) },
+                        onAnadir = { onAnadirComida(comida.tipo, estado.fecha) },
                         onEditar = { entradaEditando = it },
                         onBorrar = onBorrarEntrada,
                     )
@@ -639,7 +639,7 @@ private fun Tarjeta(radio: Dp, padding: Dp, contenido: @Composable () -> Unit) {
 private fun DiarioScreenPreview() {
     DiarioScreen(
         estado = DiarioUiState.ejemplo(),
-        onDiaAnterior = {}, onDiaSiguiente = {}, onAnadirComida = {},
+        onDiaAnterior = {}, onDiaSiguiente = {}, onAnadirComida = {_, _ -> },
         onPonerVasos = {}, onBorrarEntrada = {}, onEditarCantidad = { _, _ -> },
         racha = 12,
     )

@@ -8,11 +8,16 @@ import okhttp3.OkHttpClient
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.net.SocketTimeoutException
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.delay
 
 private const val USER_AGENT = "Kalo/0.1 (https://github.com/AplicacionesDenyshchukGomez/AplicacionKalo)" //Para que no quede publico ninguno de nuestros correos electronicos
 
 private fun crearApi(): OpenFoodFactsApi {
     val cliente = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
         .addInterceptor { chain ->
             chain.proceed(
                 chain.request().newBuilder().header("User-Agent", USER_AGENT).build(),
@@ -58,7 +63,7 @@ class OpenFoodFactsClient(
         val limpio = texto.trim()
         if (limpio.length < MIN_CARACTERES_BUSQUEDA) return ResultadoBusqueda.TextoCorto
         return try {
-            val alimentos = api.buscarPorNombre(limpio)
+            val alimentos = consultarConReintento(limpio)
                 .products
                 .orEmpty()
                 // Sin código no podemos abrir la ficha, y sin kcal o nombre no sirve de nada.
@@ -70,17 +75,34 @@ class OpenFoodFactsClient(
         } catch (e: CancellationException) {
             throw e
         } catch (e: HttpException) {
-            if (e.code() == 429 || e.code() == 503) {
-                ResultadoBusqueda.Error(
-                    "Open Food Facts recibe demasiadas peticiones. Espera unos segundos."
+            when (e.code()) {
+                429 -> ResultadoBusqueda.Error(
+                    "Has hecho demasiadas búsquedas seguidas. Espera un minuto e inténtalo de nuevo.",
                 )
-            } else {
-                ResultadoBusqueda.Error("Error del servidor (${e.code()})")
+                503 -> ResultadoBusqueda.Error(
+                    "Open Food Facts está saturado ahora mismo. Inténtalo de nuevo en unos segundos.",
+                )
+                else -> ResultadoBusqueda.Error("Error del servidor (${e.code()})")
             }
+        } catch (e: SocketTimeoutException) {
+            ResultadoBusqueda.Error(
+                "Open Food Facts tarda en responder. Prueba con un nombre más concreto, por ejemplo \"pan integral\".",
+            )
         } catch (e: IOException) {
             ResultadoBusqueda.SinConexion
         } catch (e: Exception) {
             ResultadoBusqueda.Error(e.message ?: "Error desconocido")
         }
     }
+
+    /** Open Food Facts devuelve 503 a ratos por saturación: se reintenta una vez tras una pausa corta. */
+    private suspend fun consultarConReintento(texto: String): BusquedaRespuestaDto =
+        try {
+            api.buscarPorNombre(texto)
+        } catch (e: HttpException) {
+            if (e.code() != 503) throw e
+            delay(2_000)
+            api.buscarPorNombre(texto)
+        }
+
 }
