@@ -18,7 +18,7 @@ Kotlin, Jetpack Compose (Material 3), arquitectura MVVM, Room, Retrofit con Gson
 
 ## Cómo probarla
 
-**Con el APK:** descarga `[nombre-del-apk].apk` desde `[enlace o carpeta de la entrega]` e instálalo en un móvil Android (versión mínima: `[minSdk]`). Hay que permitir la instalación de orígenes desconocidos.
+**Con el APK:** descarga `KaloApp.apk` e instálalo en un móvil Android. Hay que permitir la instalación de orígenes desconocidos.
 
 **Desde el código:**
 1. Clona el repositorio y ábrelo con Android Studio.
@@ -37,11 +37,9 @@ Los datos de productos proceden de [Open Food Facts](https://world.openfoodfacts
 - Las búsquedas muy genéricas en internet (por ejemplo "pan") pueden tardar o fallar cuando Open Food Facts está saturado; con un nombre más concreto responde mejor.
 - Los datos de la app son locales: no hay sincronización entre dispositivos.
 - Las misiones y el buscador de recetas quedan fuera de esta entrega.
-- `[Si lo has comprobado: la lectura con la cámara se ha probado en ... / pendiente de probar en más dispositivos]`
 
 ## Equipo
 
 - Daniel Denyshchuk
 - Mikel Gómez
 
-Proyecto de `[asignatura / centro]`, entrega del 15 de noviembre de 2026.
