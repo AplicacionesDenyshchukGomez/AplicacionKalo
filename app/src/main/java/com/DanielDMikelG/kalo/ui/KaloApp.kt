@@ -152,7 +152,7 @@ fun KaloApp() {
                 InicioRoute(
                     onMisiones = { Toast.makeText(context, "Próximamente", Toast.LENGTH_SHORT).show() },
                     onReceta = { Toast.makeText(context, "Próximamente", Toast.LENGTH_SHORT).show() },
-                    onEscanear = { navController.navigate(Rutas.escaner(ModoFicha.CONSULTA)) },
+                    onEscanear = { navController.navigate(Rutas.escaner("consulta")) },
                     onPeso = { navController.navigate(Destino.Profile.ruta) }, // provisional hasta "Añadir peso"
                     modifier = Modifier.fillMaxSize(),
                 )
