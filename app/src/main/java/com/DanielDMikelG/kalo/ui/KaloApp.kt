@@ -62,6 +62,7 @@ import com.DanielDMikelG.kalo.ui.screens.anadir.AnadirComidaViewModel
 import com.DanielDMikelG.kalo.ui.screens.anadir.CantidadRoute
 import com.DanielDMikelG.kalo.ui.screens.anadir.CantidadViewModel
 import com.DanielDMikelG.kalo.ui.screens.anadir.SeleccionComidaViewModel
+import com.DanielDMikelG.kalo.domain.usecase.ElegirRecetaDelDiaUseCase
 
 @Composable
 fun KaloApp() {
@@ -170,7 +171,10 @@ fun KaloApp() {
             composable(Destino.Home.ruta) {
                 InicioRoute(
                     onMisiones = { Toast.makeText(context, "Próximamente", Toast.LENGTH_SHORT).show() },
-                    onReceta = { Toast.makeText(context, "Próximamente", Toast.LENGTH_SHORT).show() },
+                    onReceta = {
+                        ElegirRecetaDelDiaUseCase()(CatalogoCocina.recetas)
+                            ?.let { navController.navigate(Rutas.receta(it.id)) }
+                    },
                     onEscanear = { navController.navigate(Rutas.escaner("consulta")) },
                     onPeso = { navController.navigate(Destino.Profile.ruta) }, // provisional hasta "Añadir peso"
                     modifier = Modifier.fillMaxSize(),
