@@ -62,6 +62,10 @@ class AlimentoRepository(
             alimento.copy(id = 0, codigoBarras = null, origen = OrigenAlimento.MANUAL).toEntity(),
         )
 
+    /** Alimentos creados por el usuario, ordenados por nombre. */
+    fun listarManuales(): Flow<List<Alimento>> =
+        dao.listarPorOrigen(OrigenAlimento.MANUAL).map { lista -> lista.map { it.toDomain() } }
+
     // Si ya existe un alimento con ese código (por ejemplo, porque OFF lo devolvió en otra forma
     // que la escaneada), nos quedamos con el guardado y no insertamos un duplicado.
     private suspend fun guardar(alimento: Alimento): Alimento {

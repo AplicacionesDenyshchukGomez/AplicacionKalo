@@ -12,19 +12,23 @@ object Rutas {
 
     const val FICHA = "ficha/{codigo}/{modo}"
 
-    fun escaner(modo: String) = "escaner/$modo"
-
-    fun ficha(codigo: String, modo: String) = "ficha/$codigo/$modo"
-
     const val RECETAS = "recetas/{filtro}"
 
     const val RECETA = "receta/{id}"
 
     const val ARTICULO = "articulo/{id}"
 
+    const val MIS_ALIMENTOS = "mis_alimentos"
+
+    fun escaner(modo: String) = "escaner/$modo"
+
+    fun ficha(codigo: String, modo: String) = "ficha/$codigo/$modo"
+
     fun recetas(filtro: FiltroRecetas) = "recetas/${filtro.clave}"
 
     fun receta(id: String) = "receta/$id"
 
     fun articulo(id: String) = "articulo/$id"
+
+
 }
