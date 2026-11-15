@@ -59,6 +59,16 @@ class ComidaRepository(private val db: KaloDatabase) {
     suspend fun eliminarEntrada(entrada: EntradaComida) =
         entradaDao.eliminar(entrada.toEntity())
 
+    /** Cambia la cantidad de una entrada y recalcula kcal y macros con los datos del alimento. */
+    suspend fun editarCantidad(entrada: EntradaComida, nuevaCantidadG: Float) {
+        if (!nuevaCantidadG.isFinite() || nuevaCantidadG <= 0f) return
+        val alimento = alimentoDao.buscarPorId(entrada.alimentoId)?.toDomain() ?: return
+        val nueva = EntradaComida
+            .desde(entrada.comidaId, alimento, nuevaCantidadG)
+            .copy(id = entrada.id)
+        entradaDao.actualizar(nueva.toEntity())
+    }
+
     // Crea un alimento nuevo de forma manual (devuelve el alimento con su id real)
     suspend fun crearAlimento(alimento: Alimento): Alimento = asegurarAlimento(alimento)
 

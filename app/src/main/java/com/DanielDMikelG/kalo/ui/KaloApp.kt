@@ -1,9 +1,15 @@
 package com.DanielDMikelG.kalo.ui
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -19,17 +25,27 @@ import com.DanielDMikelG.kalo.ui.screens.register.RegisterScreen
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.DanielDMikelG.kalo.data.local.SesionManager
 import com.DanielDMikelG.kalo.ui.screens.profile.ProfileRoute
 import com.DanielDMikelG.kalo.ui.screens.register.RegistroViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.DanielDMikelG.kalo.ui.screens.home.InicioRoute
 import com.DanielDMikelG.kalo.ui.screens.product.FichaProductoRoute
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.DanielDMikelG.kalo.data.local.KaloDatabase
+import com.DanielDMikelG.kalo.data.repository.AlimentoRepository
+import com.DanielDMikelG.kalo.ui.screens.diary.DiarioRoute
+import com.DanielDMikelG.kalo.ui.screens.diary.DiarioViewModel
+import com.DanielDMikelG.kalo.ui.screens.product.FichaProductoRoute
+import com.DanielDMikelG.kalo.ui.screens.product.FichaProductoViewModel
 import com.DanielDMikelG.kalo.ui.screens.product.ModoFicha
+import com.DanielDMikelG.kalo.ui.screens.scanner.EscanerScreen
 import com.DanielDMikelG.kalo.ui.screens.settings.SettingsScreen
 
 @Composable
@@ -97,6 +113,40 @@ fun KaloApp() {
                     modifier = Modifier.fillMaxSize(),
                 )
             }
+            composable(
+                route = Rutas.ESCANER,
+                arguments = listOf(navArgument("modo") { type = NavType.StringType }),
+            ) { entry ->
+                val modo = entry.arguments?.getString("modo") ?: "consulta"
+                EscanerScreen(
+                    onCodigo = { codigo -> navController.navigate(Rutas.ficha(codigo, modo)) },
+                    onCerrar = { navController.popBackStack() },
+                )
+            }
+
+            composable(
+                route = Rutas.FICHA,
+                arguments = listOf(
+                    navArgument("codigo") { type = NavType.StringType },
+                    navArgument("modo") { type = NavType.StringType },
+                ),
+            ) { entry ->
+                val codigo = entry.arguments?.getString("codigo").orEmpty()
+                val modo = if (entry.arguments?.getString("modo") == "anadir") ModoFicha.ANADIR
+                else ModoFicha.CONSULTA
+                val viewModel: FichaProductoViewModel = viewModel(
+                    factory = FichaProductoViewModel.Factory(
+                        repositorio = AlimentoRepository(KaloDatabase.obtener(context)),
+                        codigo = codigo,
+                        modo = modo,
+                    )
+                )
+                FichaProductoRoute(
+                    viewModel = viewModel,
+                    onAnadir = { /* TODO: pantalla de cantidad (#97) */ },
+                    onVolver = { navController.popBackStack() },
+                )
+            }
 
             composable(Destino.Home.ruta) {
                 InicioRoute(
@@ -107,53 +157,21 @@ fun KaloApp() {
                     modifier = Modifier.fillMaxSize(),
                 )
             }
-
-            composable(
-                Rutas.ESCANER,
-                arguments = listOf(navArgument("modo") { type = NavType.StringType }),
-            ) { entrada ->
-                val modo = ModoFicha.valueOf(entrada.arguments?.getString("modo") ?: ModoFicha.CONSULTA.name)
-                EscanerScreen(
-                    onCodigo = { codigo ->
-                        navController.navigate(Rutas.ficha(codigo, modo)) {
-                            popUpTo(Rutas.ESCANER) { inclusive = true } // atrás desde la ficha no vuelve a la cámara
-                        }
-                    },
-                    onCerrar = { navController.popBackStack() },
-                    modifier = Modifier.fillMaxSize(),
-                )
+            composable(Destino.Diary.ruta) {
+                val usuarioId = remember { SesionManager(context).usuarioActual() }
+                if (usuarioId == null) {
+                    PantallaVacia("Diario")
+                } else {
+                    val viewModel: DiarioViewModel = viewModel(
+                        factory = DiarioViewModel.Factory(usuarioId, KaloDatabase.obtener(context))
+                    )
+                    DiarioRoute(
+                        viewModel = viewModel,
+                        // Temporal: hasta que exista "Añadir comida" (#95), el + abre el escáner
+                        onAnadirComida = { navController.navigate(Rutas.escaner("anadir")) },
+                    )
+                }
             }
-
-            composable(
-                Rutas.FICHA,
-                arguments = listOf(
-                    navArgument("codigo") { type = NavType.StringType },
-                    navArgument("modo") { type = NavType.StringType },
-                ),
-            ) { entrada ->
-                val codigo = entrada.arguments?.getString("codigo").orEmpty()
-                val modo = ModoFicha.valueOf(entrada.arguments?.getString("modo") ?: ModoFicha.CONSULTA.name)
-                FichaProductoRoute(
-                    codigo = codigo,
-                    modo = modo,
-                    onCerrar = { navController.popBackStack() },
-                    onEscanearOtro = {
-                        navController.navigate(Rutas.escaner(modo)) { popUpTo(Rutas.FICHA) { inclusive = true } }
-                    },
-                    onAnadir = { /* TODO: ruta de Cantidad cuando exista */ navController.popBackStack() },
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-
-            composable(Destino.Home.ruta) { InicioRoute(
-                onMisiones = { Toast.makeText(context, "Próximamente", Toast.LENGTH_SHORT).show() },
-                onReceta = { Toast.makeText(context, "Próximamente", Toast.LENGTH_SHORT).show() },
-                onEscanear = { navController.navigate(Rutas.escaner(ModoFicha.CONSULTA)) },
-                onPeso = { navController.navigate(Destino.Profile.ruta) }, // provisional hasta "Añadir peso"
-                modifier = Modifier.fillMaxSize(),
-            )
-            }
-            composable(Destino.Diary.ruta) { PantallaVacia("Diario") }
             composable(Destino.Kitchen.ruta) { PantallaVacia("Cocina") }
             composable(Destino.Profile.ruta) { entry ->
                 val editar by entry.savedStateHandle
@@ -167,43 +185,6 @@ fun KaloApp() {
                     modifier = Modifier.fillMaxSize(),
                 )
             }
-            composable(
-                Rutas.ESCANER,
-                arguments = listOf(navArgument("modo") { type = NavType.StringType }),
-            ) { entrada ->
-                val modo = ModoFicha.valueOf(entrada.arguments?.getString("modo") ?: ModoFicha.CONSULTA.name)
-                EscanerScreen(
-                    onCodigo = { codigo ->
-                        navController.navigate(Rutas.ficha(codigo, modo)) {
-                            popUpTo(Rutas.ESCANER) { inclusive = true } // atrás desde la ficha no vuelve a la cámara
-                        }
-                    },
-                    onCerrar = { navController.popBackStack() },
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-
-            composable(
-                Rutas.FICHA,
-                arguments = listOf(
-                    navArgument("codigo") { type = NavType.StringType },
-                    navArgument("modo") { type = NavType.StringType },
-                ),
-            ) { entrada ->
-                val codigo = entrada.arguments?.getString("codigo").orEmpty()
-                val modo = ModoFicha.valueOf(entrada.arguments?.getString("modo") ?: ModoFicha.CONSULTA.name)
-                FichaProductoRoute(
-                    codigo = codigo,
-                    modo = modo,
-                    onCerrar = { navController.popBackStack() },
-                    onEscanearOtro = {
-                        navController.navigate(Rutas.escaner(modo)) { popUpTo(Rutas.FICHA) { inclusive = true } }
-                    },
-                    onAnadir = { /* TODO: ruta de Cantidad cuando exista */ navController.popBackStack() },
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
         }
     }
 }
-
