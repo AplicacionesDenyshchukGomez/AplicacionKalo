@@ -14,22 +14,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.DanielDMikelG.kalo.domain.model.TipoObjetivo
-import com.DanielDMikelG.kalo.ui.components.CampoTexto
+import com.DanielDMikelG.kalo.ui.components.KaloTextField
 import com.DanielDMikelG.kalo.ui.components.SelectorOpciones
+import com.DanielDMikelG.kalo.ui.components.TecladoKalo
 import com.DanielDMikelG.kalo.ui.components.comoTexto
 import com.DanielDMikelG.kalo.ui.screens.register.RegistroViewModel
+import com.DanielDMikelG.kalo.util.EntradaNumerica
 
 @Composable
 fun ObjectiveScreen(
     viewModel: RegistroViewModel,
-    onTerminar: () -> Unit
+    onTerminar: () -> Unit,
 ) {
     val estado by viewModel.estado.collectAsState()
     val necesitaMeta = estado.tipoObjetivo != null && estado.tipoObjetivo != TipoObjetivo.MANTENER
@@ -53,14 +51,19 @@ fun ObjectiveScreen(
 
         if (necesitaMeta) {
             Spacer(Modifier.height(16.dp))
-            CampoTexto(
-                estado.metaKg, { viewModel.actualizar { s -> s.copy(metaKg = it) } },
-                "Peso objetivo (kg)", tipoTeclado = KeyboardType.Decimal
+            KaloTextField(
+                estado.metaKg,
+                { viewModel.actualizar { s -> s.copy(metaKg = EntradaNumerica.decimal(it)) } },
+                "Meta de peso (kg)",
+                keyboardOptions = TecladoKalo.Decimal,
             )
+
             Spacer(Modifier.height(12.dp))
-            CampoTexto(
-                estado.plazo, { viewModel.actualizar { s -> s.copy(plazo = it) } },
-                "Plazo (semanas)", tipoTeclado = KeyboardType.Number
+            KaloTextField(
+                estado.plazo,
+                { viewModel.actualizar { s -> s.copy(plazo = EntradaNumerica.entero(it, 3)) } },
+                "Plazo (semanas)",
+                keyboardOptions = TecladoKalo.Entero,
             )
         }
 

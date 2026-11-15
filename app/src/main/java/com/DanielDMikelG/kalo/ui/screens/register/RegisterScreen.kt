@@ -17,24 +17,24 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.DanielDMikelG.kalo.domain.model.NivelActividad
 import com.DanielDMikelG.kalo.domain.model.Sexo
 import com.DanielDMikelG.kalo.ui.components.CampoTexto
+import com.DanielDMikelG.kalo.ui.components.KaloTextField
 import com.DanielDMikelG.kalo.ui.components.SelectorOpciones
+import com.DanielDMikelG.kalo.ui.components.TecladoKalo
 import com.DanielDMikelG.kalo.ui.components.comoTexto
-import androidx.compose.runtime.collectAsState
+import com.DanielDMikelG.kalo.util.EntradaNumerica
 
 @Composable
 fun RegisterScreen(
     viewModel: RegistroViewModel,
     onContinuar: () -> Unit,
-    onVolver: () -> Unit
+    onVolver: () -> Unit,
 ) {
     val estado by viewModel.estado.collectAsState()
 
@@ -63,14 +63,17 @@ fun RegisterScreen(
         )
         Spacer(Modifier.height(12.dp))
         CampoTexto(
-            estado.peso, { viewModel.actualizar { s -> s.copy(peso = it) } },
+            estado.peso, { viewModel.actualizar { s -> s.copy(peso = EntradaNumerica.decimal(it)) } },
             "Peso (kg)", tipoTeclado = KeyboardType.Decimal
         )
         Spacer(Modifier.height(12.dp))
-        CampoTexto(
-            estado.altura, { viewModel.actualizar { s -> s.copy(altura = it) } },
-            "Altura (cm)", tipoTeclado = KeyboardType.Number
+        KaloTextField(
+            estado.altura,
+            { viewModel.actualizar { s -> s.copy(altura = EntradaNumerica.entero(it, 3)) } },
+            "Altura (cm)",
+            keyboardOptions = TecladoKalo.Entero,
         )
+
         Spacer(Modifier.height(16.dp))
 
         SelectorOpciones(

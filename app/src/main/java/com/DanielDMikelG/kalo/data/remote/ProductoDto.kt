@@ -22,3 +22,8 @@ data class NutrimentosDto(
     @SerializedName("fat_100g") val grasa100g: Float?,
     @SerializedName("fiber_100g") val fibra100g: Float?,
 )
+
+data class BusquedaRespuestaDto(
+    val count: Int?,
+    val products: List<ProductoDto>?,
+)

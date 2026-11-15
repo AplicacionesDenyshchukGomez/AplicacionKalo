@@ -3,10 +3,10 @@ package com.DanielDMikelG.kalo.domain.model
 import java.time.LocalDate
 
 enum class TipoComida(val etiqueta: String) {
-    DESAYUNO("desayuno"),
-    COMIDA("comida"),
-    CENA("cena"),
-    SNACK("snack"),
+    DESAYUNO("Desayuno"),
+    COMIDA("Comida"),
+    CENA("Cena"),
+    SNACK("Snack"),
 }
 
 data class Comida(
