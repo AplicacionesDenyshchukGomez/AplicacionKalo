@@ -11,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -38,10 +39,16 @@ import com.DanielDMikelG.kalo.ui.screens.home.InicioRoute
 import com.DanielDMikelG.kalo.ui.screens.product.FichaProductoRoute
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.DanielDMikelG.kalo.data.contenido.CatalogoCocina
 import com.DanielDMikelG.kalo.data.local.KaloDatabase
 import com.DanielDMikelG.kalo.data.repository.AlimentoRepository
+import com.DanielDMikelG.kalo.domain.model.FiltroRecetas
 import com.DanielDMikelG.kalo.ui.screens.diary.DiarioRoute
 import com.DanielDMikelG.kalo.ui.screens.diary.DiarioViewModel
+import com.DanielDMikelG.kalo.ui.screens.kitchen.CocinaRoute
+import com.DanielDMikelG.kalo.ui.screens.kitchen.DetalleArticuloScreen
+import com.DanielDMikelG.kalo.ui.screens.kitchen.DetalleRecetaScreen
+import com.DanielDMikelG.kalo.ui.screens.kitchen.ListaRecetasScreen
 import com.DanielDMikelG.kalo.ui.screens.product.FichaProductoRoute
 import com.DanielDMikelG.kalo.ui.screens.product.FichaProductoViewModel
 import com.DanielDMikelG.kalo.ui.screens.product.ModoFicha
@@ -172,7 +179,49 @@ fun KaloApp() {
                     )
                 }
             }
-            composable(Destino.Kitchen.ruta) { PantallaVacia("Cocina") }
+            composable(Destino.Kitchen.ruta) {
+                CocinaRoute(
+                    onReceta = { navController.navigate(Rutas.receta(it)) },
+                    onArticulo = { navController.navigate(Rutas.articulo(it)) },
+                    onFiltro = { navController.navigate(Rutas.recetas(it)) },
+                )
+            }
+            composable(
+                route = Rutas.RECETAS,
+                arguments = listOf(navArgument("filtro") { type = NavType.StringType }),
+            ) { entry ->
+                val filtro = FiltroRecetas.desdeClave(entry.arguments?.getString("filtro"))
+                ListaRecetasScreen(
+                    titulo = filtro.titulo,
+                    recetas = CatalogoCocina.filtrar(filtro),
+                    onReceta = { navController.navigate(Rutas.receta(it)) },
+                    onVolver = { navController.popBackStack() },
+                )
+            }
+
+            composable(
+                route = Rutas.RECETA,
+                arguments = listOf(navArgument("id") { type = NavType.StringType }),
+            ) { entry ->
+                val receta = CatalogoCocina.receta(entry.arguments?.getString("id").orEmpty())
+                if (receta == null) {
+                    LaunchedEffect(Unit) { navController.popBackStack() }
+                } else {
+                    DetalleRecetaScreen(receta = receta, onVolver = { navController.popBackStack() })
+                }
+            }
+
+            composable(
+                route = Rutas.ARTICULO,
+                arguments = listOf(navArgument("id") { type = NavType.StringType }),
+            ) { entry ->
+                val articulo = CatalogoCocina.articulo(entry.arguments?.getString("id").orEmpty())
+                if (articulo == null) {
+                    LaunchedEffect(Unit) { navController.popBackStack() }
+                } else {
+                    DetalleArticuloScreen(articulo = articulo, onVolver = { navController.popBackStack() })
+                }
+            }
             composable(Destino.Profile.ruta) { entry ->
                 val editar by entry.savedStateHandle
                     .getStateFlow("editar_perfil", false)
