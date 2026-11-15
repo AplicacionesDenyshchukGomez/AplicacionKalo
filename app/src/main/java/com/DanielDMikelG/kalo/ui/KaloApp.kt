@@ -49,6 +49,8 @@ import com.DanielDMikelG.kalo.ui.screens.kitchen.CocinaRoute
 import com.DanielDMikelG.kalo.ui.screens.kitchen.DetalleArticuloScreen
 import com.DanielDMikelG.kalo.ui.screens.kitchen.DetalleRecetaScreen
 import com.DanielDMikelG.kalo.ui.screens.kitchen.ListaRecetasScreen
+import com.DanielDMikelG.kalo.ui.screens.myfoods.MisAlimentosRoute
+import com.DanielDMikelG.kalo.ui.screens.myfoods.MisAlimentosViewModel
 import com.DanielDMikelG.kalo.ui.screens.product.FichaProductoRoute
 import com.DanielDMikelG.kalo.ui.screens.product.FichaProductoViewModel
 import com.DanielDMikelG.kalo.ui.screens.product.ModoFicha
@@ -222,6 +224,19 @@ fun KaloApp() {
                     DetalleArticuloScreen(articulo = articulo, onVolver = { navController.popBackStack() })
                 }
             }
+
+            composable(Rutas.MIS_ALIMENTOS) {
+                val context = LocalContext.current
+                val vm: MisAlimentosViewModel = viewModel(
+                    factory = MisAlimentosViewModel.Factory(AlimentoRepository(KaloDatabase.obtener(context))),
+                )
+                MisAlimentosRoute(
+                    viewModel = vm,
+                    onVolver = { navController.popBackStack() },
+                    onElegir = null,
+                )
+            }
+
             composable(Destino.Profile.ruta) { entry ->
                 val editar by entry.savedStateHandle
                     .getStateFlow("editar_perfil", false)

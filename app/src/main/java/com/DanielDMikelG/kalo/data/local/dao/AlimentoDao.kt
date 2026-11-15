@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.DanielDMikelG.kalo.data.local.entity.AlimentoEntity
+import com.DanielDMikelG.kalo.domain.model.OrigenAlimento
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -24,4 +25,7 @@ interface AlimentoDao {
 
     @Query("SELECT * FROM alimento WHERE nombre LIKE '%' || :texto || '%' ORDER BY nombre LIMIT 50")
     fun buscarPorNombre(texto: String): Flow<List<AlimentoEntity>>
+
+    @Query("SELECT * FROM alimento WHERE origen = :origen ORDER BY nombre")
+    fun listarPorOrigen(origen: OrigenAlimento): Flow<List<AlimentoEntity>>
 }
