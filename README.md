@@ -1,65 +1,47 @@
-# AplicacionKalo
-Aplicación móvil de nutrición y conteo de calorías, desarrollada en Kotlin.<br><br>
+# Kalo
 
-Descripción<br>
-Kalo es una app que hace que llevar el control de la alimentación sea rápido y sencillo. En lugar de buscar y pesar cada alimento a mano, el usuario registra sus comidas con una foto, la voz o el texto, y la app estima calorías y macronutrientes y le ofrece recomendaciones personalizadas, con un enfoque en los hábitos y sin generar obsesión por los números.
-Proyecto desarrollado en el marco de Proyecto Moviles.<br><br>
+Aplicación Android nativa para llevar la cuenta de las calorías y los macronutrientes de cada día, con una mascota que reacciona a cómo vas.
 
-Características principales<br>
-Registro de comidas por foto con estimación de alimentos, porciones y macros.<br>
-Buscador de alimentos y escáner de código de barras.<br>
-Diario diario con calorías restantes, macros y registro de agua.<br>
-Objetivos personalizados según edad, peso, altura, actividad y meta (perder, mantener o ganar peso).<br>
-Seguimiento del progreso: evolución del peso y resúmenes semanales.<br><br>
+## Qué hace
 
-Tecnologías utilizadas<br>
-Lenguaje ->	Kotlin<br>
-Plataforma	-> Android<br>
-Interfaz	-> Jetpack Compose<br>
-Arquitectura	-> MVVM<br>
-Base de datos local	-> Room (SQLite)<br>
-Base de datos de alimentos	-> Open Food Facts<br>
-Control de versiones	-> Git y GitHub<br><br>
-Autores<br>
-Mikel — @Mikel1412<br>
-Daniel — @DaniZomboo<br>
-<br>
-<br>
-PLANIFICACION FUTURO PROYECTO
-PARA MAS TARDE
+- **Registro y objetivo:** crea tu cuenta, indica tus datos y tu objetivo (adelgazar, mantener o ganar masa) y Kalo calcula tu meta de calorías.
+- **Diario:** muestra lo que has comido por desayuno, comida, cena y snack, con calorías restantes, macros (proteínas, grasas, carbohidratos y fibra) y vasos de agua. Se puede navegar entre días y editar o borrar entradas.
+- **Añadir comida** de cuatro formas: buscar por nombre (en tu dispositivo y en Open Food Facts), escanear el código de barras, crear tus propios alimentos o elegir entre los guardados recientemente.
+- **Cantidad:** eliges los gramos y ves al momento las calorías y los macros antes de guardar.
+- **Inicio:** resumen del día, mascota, racha de días seguidos y acceso a la receta del día.
+- **Cocina:** receta del día, listas por tipo de comida y por objetivo, detalle de recetas y artículos.
+- **Perfil y ajustes.**
 
-ayuno, preferncia_dieta, alimento_dieta, logro, usuario_logro
+## Tecnologías
 
+Kotlin, Jetpack Compose (Material 3), arquitectura MVVM, Room, Retrofit con Gson, CameraX y ML Kit (escáner de códigos de barras) y Navigation Compose. Más detalle en [docs/arquitectura.md](docs/arquitectura.md).
 
-LO VAMOS VIENDO
+## Cómo probarla
 
-alimento_alergeno, mision_diaria
+**Con el APK:** descarga `[nombre-del-apk].apk` desde `[enlace o carpeta de la entrega]` e instálalo en un móvil Android (versión mínima: `[minSdk]`). Hay que permitir la instalación de orígenes desconocidos.
 
+**Desde el código:**
+1. Clona el repositorio y ábrelo con Android Studio.
+2. Sincroniza Gradle y ejecuta la configuración `app` en un emulador o en un móvil.
+3. Para el escáner de códigos de barras hace falta una cámara real y conceder el permiso de cámara. En el emulador se puede escribir el código a mano.
 
-PONER 100%
+**Tests:** `./gradlew test` ejecuta los tests unitarios (cálculos de calorías, macros, nutrientes por ración, racha, receta del día y validación de alimentos).
 
-Usuario, Objetivo, registro_peso, registro_agua, comida, entrada_comida, alimento, racha
+## Datos de alimentos
 
+Los datos de productos proceden de [Open Food Facts](https://world.openfoodfacts.org), una base de datos colaborativa publicada bajo licencia [ODbL](https://opendatacommons.org/licenses/odbl/1-0/). Kalo solo guarda en el dispositivo los productos que el usuario elige.
 
-COMO SE COMPARTEN LOS DATOS?
+## Limitaciones conocidas
 
-//Para escribir
+- Los valores nutricionales de las recetas de Cocina son **aproximados**, y la información de la app es orientativa y **no sustituye el consejo de un profesional de la salud**.
+- Las búsquedas muy genéricas en internet (por ejemplo "pan") pueden tardar o fallar cuando Open Food Facts está saturado; con un nombre más concreto responde mejor.
+- Los datos de la app son locales: no hay sincronización entre dispositivos.
+- Las misiones y el buscador de recetas quedan fuera de esta entrega.
+- `[Si lo has comprobado: la lectura con la cámara se ha probado en ... / pendiente de probar en más dispositivos]`
 
-1. El ViewModel tiene un usuario, por ejemplo, y se lo pasa al repositorio
-2. El repositorio lo convierte con el mapper y llama al DAO
-	2.1 El mapper lo transforma en UsuarioEntity
-3. El dao guarda la entidad en la base de datos
-4. KaloDatabase.kt escribe la fila en kalo.db
+## Equipo
 
-//Para leer
-Seria justo igual que los pasos para escribir pero al reves
+- Daniel Denyshchuk
+- Mikel Gómez
 
-
-ISSUES A HACER<br>
-Mikel<br>
-Issue CreacionUsuarioYRelacionadosRoom -> Usuario, Objetivo, RestiroPeso, RegistroAgua, Racha<br>
-Issue CreacionComidaYRelacionadosRoom -> Comida, EntradaComida, Alimento<br><br>
-Dani<br>
-Issue DomainModelUsuario -> Usuario, Objetivo, RestiroPeso, RegistroAgua, Racha<br>
-Issue DomainModelComida -> Comida, EntradaComida, Alimento<br>
-Issue PantallaUsuario -> Hacer la pantalla de perfil y conectar con domain model<br>
+Proyecto de `[asignatura / centro]`, entrega del 15 de noviembre de 2026.
