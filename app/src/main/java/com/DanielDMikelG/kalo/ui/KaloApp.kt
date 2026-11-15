@@ -56,12 +56,19 @@ import com.DanielDMikelG.kalo.ui.screens.product.FichaProductoViewModel
 import com.DanielDMikelG.kalo.ui.screens.product.ModoFicha
 import com.DanielDMikelG.kalo.ui.screens.scanner.EscanerScreen
 import com.DanielDMikelG.kalo.ui.screens.settings.SettingsScreen
+import com.DanielDMikelG.kalo.data.repository.ComidaRepository
+import com.DanielDMikelG.kalo.ui.screens.anadir.AnadirComidaRoute
+import com.DanielDMikelG.kalo.ui.screens.anadir.AnadirComidaViewModel
+import com.DanielDMikelG.kalo.ui.screens.anadir.CantidadRoute
+import com.DanielDMikelG.kalo.ui.screens.anadir.CantidadViewModel
+import com.DanielDMikelG.kalo.ui.screens.anadir.SeleccionComidaViewModel
 
 @Composable
 fun KaloApp() {
     val navController = rememberNavController()
     val context = LocalContext.current
     val registroViewModel: RegistroViewModel = viewModel()
+    val seleccion: SeleccionComidaViewModel = viewModel()
 
     val rutaInicial = remember {
         if (SesionManager(context).usuarioActual() != null) Destino.Home.ruta else Rutas.LOGIN
@@ -152,7 +159,10 @@ fun KaloApp() {
                 )
                 FichaProductoRoute(
                     viewModel = viewModel,
-                    onAnadir = { /* TODO: pantalla de cantidad (#97) */ },
+                    onAnadir = { alimento ->
+                        seleccion.elegirAlimento(alimento)
+                        navController.navigate(Rutas.CANTIDAD)
+                    },
                     onVolver = { navController.popBackStack() },
                 )
             }
@@ -177,7 +187,10 @@ fun KaloApp() {
                     DiarioRoute(
                         viewModel = viewModel,
                         // Temporal: hasta que exista "Añadir comida" (#95), el + abre el escáner
-                        onAnadirComida = { navController.navigate(Rutas.escaner("anadir")) },
+                        onAnadirComida = { tipo, fecha ->
+                            seleccion.empezar(tipo, fecha)
+                            navController.navigate(Rutas.ANADIR_COMIDA)
+                        },
                     )
                 }
             }
@@ -233,8 +246,55 @@ fun KaloApp() {
                 MisAlimentosRoute(
                     viewModel = vm,
                     onVolver = { navController.popBackStack() },
-                    onElegir = null,
+                    onElegir = { alimento ->
+                        seleccion.elegirAlimento(alimento)
+                        navController.navigate(Rutas.CANTIDAD)
+                    },
                 )
+            }
+
+            composable(Rutas.ANADIR_COMIDA) {
+                val vm: AnadirComidaViewModel = viewModel(
+                    factory = AnadirComidaViewModel.Factory(AlimentoRepository(KaloDatabase.obtener(context))),
+                )
+                val sel by seleccion.estado.collectAsStateWithLifecycle()
+                AnadirComidaRoute(
+                    viewModel = vm,
+                    tipo = sel.tipo,
+                    onEscanear = { navController.navigate(Rutas.escaner("anadir")) },
+                    onMisAlimentos = { navController.navigate(Rutas.MIS_ALIMENTOS) },
+                    onElegirGuardado = { alimento ->
+                        seleccion.elegirAlimento(alimento)
+                        navController.navigate(Rutas.CANTIDAD)
+                    },
+                    onElegirEnLinea = { codigo -> navController.navigate(Rutas.ficha(codigo, "anadir")) },
+                    onVolver = { navController.popBackStack() },
+                )
+            }
+
+            composable(Rutas.CANTIDAD) {
+                val usuarioId = remember { SesionManager(context).usuarioActual() }
+                val sel by seleccion.estado.collectAsStateWithLifecycle()
+                val alimento = sel.alimento
+                if (usuarioId == null || alimento == null) {
+                    LaunchedEffect(Unit) { navController.popBackStack() }
+                } else {
+                    val vm: CantidadViewModel = viewModel(
+                        factory = CantidadViewModel.Factory(
+                            comidas = ComidaRepository(KaloDatabase.obtener(context)),
+                            usuarioId = usuarioId,
+                            alimento = alimento,
+                            tipo = sel.tipo,
+                            fecha = sel.fecha,
+                        ),
+                    )
+                    CantidadRoute(
+                        viewModel = vm,
+                        tipo = sel.tipo,
+                        onGuardado = { navController.popBackStack(Destino.Diary.ruta, inclusive = false) },
+                        onVolver = { navController.popBackStack() },
+                    )
+                }
             }
 
             composable(Destino.Profile.ruta) { entry ->
