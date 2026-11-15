@@ -3,6 +3,7 @@ package com.DanielDMikelG.kalo.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,10 +30,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.DanielDMikelG.kalo.data.local.SesionManager
-import com.DanielDMikelG.kalo.ui.screens.home.HomeScreen
 import com.DanielDMikelG.kalo.ui.screens.profile.ProfileRoute
 import com.DanielDMikelG.kalo.ui.screens.register.RegistroViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.navArgument
+import com.DanielDMikelG.kalo.ui.screens.home.InicioRoute
+import com.DanielDMikelG.kalo.ui.screens.product.FichaProductoRoute
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.DanielDMikelG.kalo.data.local.KaloDatabase
@@ -145,7 +148,15 @@ fun KaloApp() {
                 )
             }
 
-            composable(Destino.Home.ruta) { HomeScreen() }
+            composable(Destino.Home.ruta) {
+                InicioRoute(
+                    onMisiones = { Toast.makeText(context, "Próximamente", Toast.LENGTH_SHORT).show() },
+                    onReceta = { Toast.makeText(context, "Próximamente", Toast.LENGTH_SHORT).show() },
+                    onEscanear = { navController.navigate(Rutas.escaner("consulta")) },
+                    onPeso = { navController.navigate(Destino.Profile.ruta) }, // provisional hasta "Añadir peso"
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
             composable(Destino.Diary.ruta) {
                 val usuarioId = remember { SesionManager(context).usuarioActual() }
                 if (usuarioId == null) {
