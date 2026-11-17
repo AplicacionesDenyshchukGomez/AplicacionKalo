@@ -62,6 +62,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -72,6 +73,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.DanielDMikelG.kalo.domain.model.TipoComida
+import com.DanielDMikelG.kalo.ui.components.FraccionesBarra
 import com.DanielDMikelG.kalo.ui.components.KaloWaterGlasses
 import com.DanielDMikelG.kalo.ui.components.MascotaKalo
 import com.DanielDMikelG.kalo.util.EntradaNumerica
@@ -121,7 +123,10 @@ private data class EstiloMacro(
     val color: Color,
     val suave: Color,
     val colorLetra: Color,
-)
+) {
+    /** Tono más oscuro del mismo color, para la segunda vuelta cuando te pasas de la meta. */
+    val colorExceso: Color get() = lerp(color, Color.Black, 0.4f)
+}
 
 private val PROTEINA = EstiloMacro("P", "Proteínas", "Prot.", Color(0xFFFF9AA2), Color(0xFFFFE3E5), Color(0xFF9C2F3C))
 private val GRASA = EstiloMacro("G", "Grasas", "Grasas", Color(0xFFFFD966), Color(0xFFFFF3C9), Color(0xFF7A5600))
@@ -426,7 +431,7 @@ private fun TarjetaMacros(estado: DiarioUiState) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     macros.forEach { (estilo, macro) ->
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Barra(macro.progreso, estilo.color, estilo.suave, 12.dp)
+                            BarraMacro(macro, estilo, 12.dp)
                             Text(
                                 estilo.abreviado, color = TEXTO_SEC, fontSize = 12.sp,
                                 fontWeight = FontWeight.ExtraBold, textAlign = TextAlign.Center,
@@ -454,7 +459,7 @@ private fun TarjetaMacros(estado: DiarioUiState) {
                                         color = TEXTO_SEC, fontSize = 14.sp,
                                     )
                                 }
-                                Barra(macro.progreso, estilo.color, estilo.suave, 14.dp)
+                                BarraMacro(macro, estilo, 14.dp)
                             }
                         }
                     }
@@ -466,11 +471,38 @@ private fun TarjetaMacros(estado: DiarioUiState) {
 
 @Composable
 private fun Barra(progreso: Float, color: Color, fondo: Color, alto: Dp) {
+    BarraCapas(progreso.coerceIn(0f, 1f), 0f, color, color, fondo, alto)
+}
+
+@Composable
+private fun BarraMacro(macro: MacroDiario, estilo: EstiloMacro, alto: Dp) {
+    val f = FraccionesBarra.desde(macro.consumidoG.toFloat(), macro.objetivoG.toFloat())
+    BarraCapas(f.normal, f.exceso, estilo.color, estilo.colorExceso, estilo.suave, alto)
+}
+
+@Composable
+private fun BarraCapas(
+    normal: Float,
+    exceso: Float,
+    color: Color,
+    colorExceso: Color,
+    fondo: Color,
+    alto: Dp,
+) {
+    val normalAnim by animateFloatAsState(normal, tween(600), label = "barraNormal")
+    val excesoAnim by animateFloatAsState(exceso, tween(600), label = "barraExceso")
     Box(Modifier.fillMaxWidth().height(alto).clip(CircleShape).background(fondo)) {
         Box(
-            Modifier.fillMaxWidth(progreso.coerceIn(0f, 1f)).fillMaxHeight()
+            Modifier.fillMaxWidth(normalAnim).fillMaxHeight()
                 .clip(CircleShape).background(color),
         )
+        // Segunda vuelta: empieza otra vez desde la izquierda, por encima de la primera
+        if (excesoAnim > 0f) {
+            Box(
+                Modifier.fillMaxWidth(excesoAnim).fillMaxHeight()
+                    .clip(CircleShape).background(colorExceso),
+            )
+        }
     }
 }
 
@@ -638,8 +670,11 @@ private fun Tarjeta(radio: Dp, padding: Dp, contenido: @Composable () -> Unit) {
 @Composable
 private fun DiarioScreenPreview() {
     DiarioScreen(
-        estado = DiarioUiState.ejemplo(),
-        onDiaAnterior = {}, onDiaSiguiente = {}, onAnadirComida = {_, _ -> },
+        estado = DiarioUiState.ejemplo().copy(
+            grasa = MacroDiario(95, 70),   // te pasas un poco: tramo oscuro al principio
+            fibra = MacroDiario(65, 30),   // más del doble: barra entera oscura
+        ),
+        onDiaAnterior = {}, onDiaSiguiente = {}, onAnadirComida = { _, _ -> },
         onPonerVasos = {}, onBorrarEntrada = {}, onEditarCantidad = { _, _ -> },
         racha = 12,
     )
