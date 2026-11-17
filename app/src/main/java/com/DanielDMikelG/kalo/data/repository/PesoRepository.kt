@@ -28,4 +28,8 @@ class PesoRepository(db: KaloDatabase) {
     }
 
     suspend fun eliminar(registro: RegistroPeso) = dao.eliminar(registro.toEntity())
+
+    /** Primer pesaje del usuario: el que se guardó al registrarse. */
+    fun observarPrimero(usuarioId: Long): Flow<RegistroPeso?> =
+        observarHistorial(usuarioId).map { lista -> lista.minByOrNull { it.fecha } }
 }
