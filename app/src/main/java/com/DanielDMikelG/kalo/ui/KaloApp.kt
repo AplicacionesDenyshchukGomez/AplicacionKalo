@@ -63,6 +63,9 @@ import com.DanielDMikelG.kalo.ui.screens.anadir.CantidadRoute
 import com.DanielDMikelG.kalo.ui.screens.anadir.CantidadViewModel
 import com.DanielDMikelG.kalo.ui.screens.anadir.SeleccionComidaViewModel
 import com.DanielDMikelG.kalo.domain.usecase.ElegirRecetaDelDiaUseCase
+import com.DanielDMikelG.kalo.data.repository.PesoRepository
+import com.DanielDMikelG.kalo.ui.screens.weight.AnadirPesoRoute
+import com.DanielDMikelG.kalo.ui.screens.weight.AnadirPesoViewModel
 
 @Composable
 fun KaloApp() {
@@ -176,10 +179,27 @@ fun KaloApp() {
                             ?.let { navController.navigate(Rutas.receta(it.id)) }
                     },
                     onEscanear = { navController.navigate(Rutas.escaner("consulta")) },
-                    onPeso = { navController.navigate(Destino.Profile.ruta) }, // provisional hasta "Añadir peso"
+                    onPeso = { navController.navigate(Rutas.ANADIR_PESO) }, // provisional hasta "Añadir peso"
                     modifier = Modifier.fillMaxSize(),
                 )
             }
+
+            composable(Rutas.ANADIR_PESO) {
+                val usuarioId = remember { SesionManager(context).usuarioActual() }
+                if (usuarioId == null) {
+                    LaunchedEffect(Unit) { navController.popBackStack() }
+                } else {
+                    val vm: AnadirPesoViewModel = viewModel(
+                        factory = AnadirPesoViewModel.Factory(usuarioId, PesoRepository(KaloDatabase.obtener(context))),
+                    )
+                    AnadirPesoRoute(
+                        viewModel = vm,
+                        onGuardado = { navController.popBackStack() },
+                        onVolver = { navController.popBackStack() },
+                    )
+                }
+            }
+
             composable(Destino.Diary.ruta) {
                 val usuarioId = remember { SesionManager(context).usuarioActual() }
                 if (usuarioId == null) {

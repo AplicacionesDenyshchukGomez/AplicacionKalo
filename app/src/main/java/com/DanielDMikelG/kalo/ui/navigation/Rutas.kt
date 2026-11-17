@@ -24,6 +24,8 @@ object Rutas {
 
     const val CANTIDAD = "cantidad"
 
+    const val ANADIR_PESO = "anadir_peso"
+
     fun escaner(modo: String) = "escaner/$modo"
 
     fun ficha(codigo: String, modo: String) = "ficha/$codigo/$modo"
