@@ -62,7 +62,6 @@ import kotlin.math.abs
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.DanielDMikelG.kalo.data.repository.PesoRepository
 import com.DanielDMikelG.kalo.ui.components.TecladoKalo
 import com.DanielDMikelG.kalo.util.EntradaNumerica
 
@@ -93,8 +92,7 @@ fun ProfileRoute(
         key = "perfil_$usuarioId",
         factory = viewModelFactory {
             initializer {
-                ProfileViewModel(UsuarioRepository(KaloDatabase.obtener(context)), PesoRepository(
-                    KaloDatabase.obtener(context)), usuarioId)
+                ProfileViewModel(UsuarioRepository(KaloDatabase.obtener(context)), usuarioId)
             }
         },
     )
@@ -181,7 +179,7 @@ private fun InfoContent(
             state.mensaje?.let {
                 Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
             }
-            TarjetaPeso(state.pesoInicialKg, state.pesoActualKg, objetivo.metaKg)
+            TarjetaPeso(state.pesoActualKg, objetivo.metaKg)
             state.pesoActualKg?.let { TarjetaMeta(it, objetivo) }
 
             KaloCard {
@@ -260,20 +258,14 @@ private fun Pastilla(texto: String, borde: BorderStroke? = null) {
 }
 
 @Composable
-private fun TarjetaPeso(pesoInicialKg: Float?, pesoActualKg: Float?, metaKg: Float) {
+private fun TarjetaPeso(pesoActualKg: Float?, metaKg: Float) {
     KaloCard {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
             Text("Tu peso", style = MaterialTheme.typography.titleMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 TilePeso(
-                    etiqueta = "Inicial",
-                    valor = pesoActualKg?.aTexto() ?: "—",
-                    fondo = Color(0xFFFFF1BF),
-                    modifier = Modifier.weight(1f),
-                )
-                TilePeso(
                     etiqueta = "Actual",
-                    valor = pesoInicialKg?.aTexto() ?: "—",
+                    valor = pesoActualKg?.aTexto() ?: "—",
                     fondo = MaterialTheme.colorScheme.primaryContainer,
                     modifier = Modifier.weight(1f),
                 )
