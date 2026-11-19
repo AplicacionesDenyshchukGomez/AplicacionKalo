@@ -43,11 +43,13 @@ import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,6 +64,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -72,8 +75,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.DanielDMikelG.kalo.domain.model.TipoComida
+import com.DanielDMikelG.kalo.ui.components.FraccionesBarra
 import com.DanielDMikelG.kalo.ui.components.KaloWaterGlasses
 import com.DanielDMikelG.kalo.ui.components.MascotaKalo
+import com.DanielDMikelG.kalo.ui.theme.KaloTheme
+import com.DanielDMikelG.kalo.ui.theme.esTemaOscuro
+import com.DanielDMikelG.kalo.ui.theme.kaloColors
+import com.DanielDMikelG.kalo.ui.theme.tono
 import com.DanielDMikelG.kalo.util.EntradaNumerica
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
@@ -85,15 +93,51 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
-// ---- Tokens "Menta" ----
-private val FONDO = Color(0xFFF4FBF6)
-private val CABECERA = Color(0xFFDDF3E5)
-private val BORDE = Color(0xFFD3EDDD)
-private val TEXTO = Color(0xFF17372A)
-private val TEXTO_SEC = Color(0xFF3F5B4C)
-private val VERDE = Color(0xFF1B7F4E)
-private val OLA_ATRAS = Color(0xFFB5E7C9)
-private val OLA_FRENTE = Color(0xFF7FD3A4)
+// ---- Colores: salen del tema (claro y oscuro) ----
+private val FONDO: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.background
+private val CABECERA: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.surfaceVariant
+private val BORDE: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.outline
+private val TEXTO: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.onSurface
+private val TEXTO_SEC: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.onSurfaceVariant
+private val VERDE: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.primary
+private val SUPERFICIE: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.surface
+private val PISTA: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = if (esTemaOscuro()) MaterialTheme.colorScheme.surfaceVariant else Color(0xFFEAF5EE)
+private val OLA_ATRAS: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = if (esTemaOscuro()) Color(0xFF1D5C3F) else Color(0xFFB5E7C9)
+private val OLA_FRENTE: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = if (esTemaOscuro()) Color(0xFF2A7D56) else Color(0xFF7FD3A4)
+private val ANILLO_TAZA: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = if (esTemaOscuro()) Color(0xFF3F7A5C) else Color(0xFFB8E6CA)
 private const val GRAMOS_MAXIMOS = 5000f
 
 private val espanol: Locale = Locale.forLanguageTag("es-ES")
@@ -107,11 +151,16 @@ private data class EstiloComida(
     val reparto: Float, // parte de las kcal del día que le corresponde
 )
 
-private fun TipoComida.estilo() = when (this) {
-    TipoComida.DESAYUNO -> EstiloComida(Icons.Filled.FreeBreakfast, Color(0xFFFFF0C2), Color(0xFF7A5600), Color(0xFFFFD966), 0.25f)
-    TipoComida.COMIDA -> EstiloComida(Icons.Filled.Restaurant, Color(0xFFDDEFFF), Color(0xFF1F5E99), Color(0xFF8CCBFF), 0.35f)
-    TipoComida.CENA -> EstiloComida(Icons.Filled.NightsStay, Color(0xFFE4E1FF), Color(0xFF4B3FA8), Color(0xFFB9B0FF), 0.30f)
-    TipoComida.SNACK -> EstiloComida(Icons.Filled.Cookie, Color(0xFFFFE3E5), Color(0xFF9C2F3C), Color(0xFFFF9AA2), 0.10f)
+@Composable
+@ReadOnlyComposable
+private fun TipoComida.estilo(): EstiloComida {
+    val t = tono()
+    return when (this) {
+        TipoComida.DESAYUNO -> EstiloComida(Icons.Filled.FreeBreakfast, t.fondo, t.icono, t.barra, 0.25f)
+        TipoComida.COMIDA -> EstiloComida(Icons.Filled.Restaurant, t.fondo, t.icono, t.barra, 0.35f)
+        TipoComida.CENA -> EstiloComida(Icons.Filled.NightsStay, t.fondo, t.icono, t.barra, 0.30f)
+        TipoComida.SNACK -> EstiloComida(Icons.Filled.Cookie, t.fondo, t.icono, t.barra, 0.10f)
+    }
 }
 
 private data class EstiloMacro(
@@ -121,12 +170,10 @@ private data class EstiloMacro(
     val color: Color,
     val suave: Color,
     val colorLetra: Color,
-)
-
-private val PROTEINA = EstiloMacro("P", "Proteínas", "Prot.", Color(0xFFFF9AA2), Color(0xFFFFE3E5), Color(0xFF9C2F3C))
-private val GRASA = EstiloMacro("G", "Grasas", "Grasas", Color(0xFFFFD966), Color(0xFFFFF3C9), Color(0xFF7A5600))
-private val CARBOS = EstiloMacro("C", "Carbohidratos", "Carbos", Color(0xFF8CCBFF), Color(0xFFDDEFFF), Color(0xFF1F5E99))
-private val FIBRA = EstiloMacro("F", "Fibra", "Fibra", Color(0xFFD9B38C), Color(0xFFF3E7D8), Color(0xFF6B4A25))
+) {
+    /** Tono más oscuro del mismo color, para la segunda vuelta cuando te pasas de la meta. */
+    val colorExceso: Color get() = lerp(color, Color.Black, 0.4f)
+}
 
 // ---- Punto de entrada con ViewModel ----
 @Composable
@@ -251,7 +298,7 @@ private fun Cabecera(
 
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Box(Modifier.size(60.dp), contentAlignment = Alignment.Center) { mascota() }
-            Surface(shape = RoundedCornerShape(20.dp), color = Color.White, modifier = Modifier.weight(1f)) {
+            Surface(shape = RoundedCornerShape(20.dp), color = SUPERFICIE, modifier = Modifier.weight(1f)) {
                 Text(
                     mensajeDiario(estado),
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
@@ -262,7 +309,7 @@ private fun Cabecera(
 
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             BotonCircular(Icons.AutoMirrored.Filled.KeyboardArrowLeft, "Día anterior", true, onDiaAnterior)
-            Surface(shape = CircleShape, color = Color.White, modifier = Modifier.weight(1f).height(48.dp)) {
+            Surface(shape = CircleShape, color = SUPERFICIE, modifier = Modifier.weight(1f).height(48.dp)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
@@ -280,7 +327,7 @@ private fun Cabecera(
 @Composable
 private fun ChipRacha(dias: Int) {
     Surface(
-        shape = CircleShape, color = Color.White,
+        shape = CircleShape, color = SUPERFICIE,
         border = BorderStroke(2.dp, Color(0xFFFFD966)),
     ) {
         Row(
@@ -298,7 +345,7 @@ private fun ChipRacha(dias: Int) {
 private fun BotonCircular(icono: ImageVector, descripcion: String, activo: Boolean, onClick: () -> Unit) {
     Surface(
         shape = CircleShape,
-        color = Color.White.copy(alpha = if (activo) 1f else 0.5f),
+        color = SUPERFICIE.copy(alpha = if (activo) 1f else 0.5f),
         modifier = Modifier.size(48.dp),
     ) {
         IconButton(onClick = onClick, enabled = activo) {
@@ -328,17 +375,23 @@ private fun TazaCalorias(estado: DiarioUiState) {
     )
     val nivel by animateFloatAsState(1f - estado.progresoKcal, tween(800), label = "nivel")
 
+    // Los colores del tema se leen aquí: dentro del Canvas no se pueden leer
+    val colorFondo = FONDO
+    val colorOlaAtras = OLA_ATRAS
+    val colorOlaFrente = OLA_FRENTE
+    val colorAnillo = ANILLO_TAZA
+
     Box(modifier = Modifier.size(176.dp), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
             val radio = size.minDimension / 2f
-            drawCircle(FONDO, radius = radio - 2.dp.toPx())
+            drawCircle(colorFondo, radius = radio - 2.dp.toPx())
             val recorte = Path().apply { addOval(Rect(center = center, radius = radio - 4.dp.toPx())) }
             clipPath(recorte) {
-                ola(nivel, fase2, 8.dp.toPx(), OLA_ATRAS)
-                ola(nivel, fase1, 8.dp.toPx(), OLA_FRENTE)
+                ola(nivel, fase2, 8.dp.toPx(), colorOlaAtras)
+                ola(nivel, fase1, 8.dp.toPx(), colorOlaFrente)
             }
             drawCircle(
-                Color(0xFFB8E6CA), radius = radio - 2.dp.toPx(),
+                colorAnillo, radius = radio - 2.dp.toPx(),
                 style = Stroke(width = 4.dp.toPx()),
             )
         }
@@ -392,11 +445,14 @@ private fun etiquetaFecha(fecha: LocalDate): String {
 @Composable
 private fun TarjetaMacros(estado: DiarioUiState) {
     var abiertas by rememberSaveable { mutableStateOf(false) }
+    val k = MaterialTheme.kaloColors
+    val oscuro = esTemaOscuro()
+    // En oscuro la letra usa el propio color del macro; en claro, un tono oscuro del mismo
     val macros = listOf(
-        PROTEINA to estado.proteina,
-        GRASA to estado.grasa,
-        CARBOS to estado.carbohidratos,
-        FIBRA to estado.fibra,
+        EstiloMacro("P", "Proteínas", "Prot.", k.protein, k.proteinSoft, if (oscuro) k.protein else Color(0xFF9C2F3C)) to estado.proteina,
+        EstiloMacro("G", "Grasas", "Grasas", k.fat, k.fatSoft, if (oscuro) k.fat else Color(0xFF7A5600)) to estado.grasa,
+        EstiloMacro("C", "Carbohidratos", "Carbos", k.carbs, k.carbsSoft, if (oscuro) k.carbs else Color(0xFF1F5E99)) to estado.carbohidratos,
+        EstiloMacro("F", "Fibra", "Fibra", k.fiber, k.fiberSoft, if (oscuro) k.fiber else Color(0xFF6B4A25)) to estado.fibra,
     )
 
     Tarjeta(radio = 28.dp, padding = 20.dp) {
@@ -411,7 +467,7 @@ private fun TarjetaMacros(estado: DiarioUiState) {
                     color = TEXTO, fontSize = 21.sp, fontWeight = FontWeight.Black,
                 )
                 Box(
-                    Modifier.size(36.dp).clip(CircleShape).background(Color(0xFFEAF5EE)),
+                    Modifier.size(36.dp).clip(CircleShape).background(PISTA),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
@@ -426,7 +482,7 @@ private fun TarjetaMacros(estado: DiarioUiState) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     macros.forEach { (estilo, macro) ->
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Barra(macro.progreso, estilo.color, estilo.suave, 12.dp)
+                            BarraMacro(macro, estilo, 12.dp)
                             Text(
                                 estilo.abreviado, color = TEXTO_SEC, fontSize = 12.sp,
                                 fontWeight = FontWeight.ExtraBold, textAlign = TextAlign.Center,
@@ -454,7 +510,7 @@ private fun TarjetaMacros(estado: DiarioUiState) {
                                         color = TEXTO_SEC, fontSize = 14.sp,
                                     )
                                 }
-                                Barra(macro.progreso, estilo.color, estilo.suave, 14.dp)
+                                BarraMacro(macro, estilo, 14.dp)
                             }
                         }
                     }
@@ -466,11 +522,38 @@ private fun TarjetaMacros(estado: DiarioUiState) {
 
 @Composable
 private fun Barra(progreso: Float, color: Color, fondo: Color, alto: Dp) {
+    BarraCapas(progreso.coerceIn(0f, 1f), 0f, color, color, fondo, alto)
+}
+
+@Composable
+private fun BarraMacro(macro: MacroDiario, estilo: EstiloMacro, alto: Dp) {
+    val f = FraccionesBarra.desde(macro.consumidoG.toFloat(), macro.objetivoG.toFloat())
+    BarraCapas(f.normal, f.exceso, estilo.color, estilo.colorExceso, estilo.suave, alto)
+}
+
+@Composable
+private fun BarraCapas(
+    normal: Float,
+    exceso: Float,
+    color: Color,
+    colorExceso: Color,
+    fondo: Color,
+    alto: Dp,
+) {
+    val normalAnim by animateFloatAsState(normal, tween(600), label = "barraNormal")
+    val excesoAnim by animateFloatAsState(exceso, tween(600), label = "barraExceso")
     Box(Modifier.fillMaxWidth().height(alto).clip(CircleShape).background(fondo)) {
         Box(
-            Modifier.fillMaxWidth(progreso.coerceIn(0f, 1f)).fillMaxHeight()
+            Modifier.fillMaxWidth(normalAnim).fillMaxHeight()
                 .clip(CircleShape).background(color),
         )
+        // Segunda vuelta: empieza otra vez desde la izquierda, por encima de la primera
+        if (excesoAnim > 0f) {
+            Box(
+                Modifier.fillMaxWidth(excesoAnim).fillMaxHeight()
+                    .clip(CircleShape).background(colorExceso),
+            )
+        }
     }
 }
 
@@ -510,14 +593,14 @@ private fun TarjetaComida(
                         if (presupuesto > 0) "${comida.kcal} / $presupuesto kcal" else "${comida.kcal} kcal",
                         color = TEXTO_SEC, fontSize = 14.sp,
                     )
-                    Barra(progreso, estilo.barra, Color(0xFFEAF5EE), 8.dp)
+                    Barra(progreso, estilo.barra, PISTA, 8.dp)
                 }
                 Surface(shape = CircleShape, color = VERDE, modifier = Modifier.size(48.dp)) {
                     IconButton(onClick = onAnadir) {
                         Icon(
                             Icons.Filled.Add,
                             contentDescription = "Añadir alimento a ${comida.tipo.etiqueta.lowercase()}",
-                            tint = Color.White,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                         )
                     }
                 }
@@ -626,7 +709,7 @@ private fun TarjetaAgua(estado: DiarioUiState, onPonerVasos: (Int) -> Unit) {
 private fun Tarjeta(radio: Dp, padding: Dp, contenido: @Composable () -> Unit) {
     Surface(
         shape = RoundedCornerShape(radio),
-        color = Color.White,
+        color = SUPERFICIE,
         border = BorderStroke(2.dp, BORDE),
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -634,12 +717,26 @@ private fun Tarjeta(radio: Dp, padding: Dp, contenido: @Composable () -> Unit) {
     }
 }
 
-@Preview(showBackground = true, heightDp = 1500)
+@Preview(name = "Claro", showBackground = true, heightDp = 1500)
 @Composable
 private fun DiarioScreenPreview() {
+    KaloTheme(darkTheme = false) { DiarioPreviewContenido() }
+}
+
+@Preview(name = "Oscuro", showBackground = true, heightDp = 1500)
+@Composable
+private fun DiarioScreenOscuroPreview() {
+    KaloTheme(darkTheme = true) { DiarioPreviewContenido() }
+}
+
+@Composable
+private fun DiarioPreviewContenido() {
     DiarioScreen(
-        estado = DiarioUiState.ejemplo(),
-        onDiaAnterior = {}, onDiaSiguiente = {}, onAnadirComida = {_, _ -> },
+        estado = DiarioUiState.ejemplo().copy(
+            grasa = MacroDiario(95, 70),   // te pasas un poco: tramo oscuro al principio
+            fibra = MacroDiario(65, 30),   // más del doble: barra entera oscura
+        ),
+        onDiaAnterior = {}, onDiaSiguiente = {}, onAnadirComida = { _, _ -> },
         onPonerVasos = {}, onBorrarEntrada = {}, onEditarCantidad = { _, _ -> },
         racha = 12,
     )
