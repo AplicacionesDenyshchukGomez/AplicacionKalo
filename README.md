@@ -19,6 +19,10 @@ Kotlin, Jetpack Compose (Material 3), arquitectura MVVM, Room, Retrofit con Gson
 ## Cómo probarla
 
 **Con el APK:** descarga `KaloApp.apk` e instálalo en un móvil Android. Hay que permitir la instalación de orígenes desconocidos.
+1. En el apartado de inicio podremos añadir peso, ver la receta del día, escanear un producto y ver las macros del dia.
+2. En el apartado de diario podremos añadir la comida consumida en el día en base a la comida del día, también podremos añadir los vasos de agua consumidos.
+3. En el apartado de cocina podremos ver recetas con sus ingredientes y preparación y leer algunos artículos sobre alimentación.
+4. En el apartado de perfil podremos ver nuestra meta, entrar en ajustes y modificar algunos parametros de la aplicación.
 
 **Desde el código:**
 1. Clona el repositorio y ábrelo con Android Studio.
