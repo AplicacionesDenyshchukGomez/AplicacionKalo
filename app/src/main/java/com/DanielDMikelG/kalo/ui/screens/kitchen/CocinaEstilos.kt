@@ -12,35 +12,83 @@ import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.DanielDMikelG.kalo.domain.model.CategoriaArticulo
 import com.DanielDMikelG.kalo.domain.model.TipoComida
+import com.DanielDMikelG.kalo.ui.theme.tonoAmarillo
+import com.DanielDMikelG.kalo.ui.theme.tonoAzul
+import com.DanielDMikelG.kalo.ui.theme.tonoRosa
+import com.DanielDMikelG.kalo.ui.theme.tono
 
-internal val CocinaFondo = Color(0xFFF4FBF6)
-internal val CocinaCabecera = Color(0xFFDDF3E5)
-internal val CocinaBorde = Color(0xFFD3EDDD)
-internal val CocinaTexto = Color(0xFF17372A)
-internal val CocinaTextoSec = Color(0xFF3F5B4C)
-internal val CocinaVerde = Color(0xFF1B7F4E)
-internal val CocinaContenedor = Color(0xFFCDEFD9)
+// Colores de Cocina: salen del tema, así cambian solos entre claro y oscuro
+internal val CocinaFondo: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.background
+
+internal val CocinaCabecera: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.surfaceVariant
+
+internal val CocinaBorde: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.outline
+
+internal val CocinaTexto: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.onSurface
+
+internal val CocinaTextoSec: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.onSurfaceVariant
+
+internal val CocinaVerde: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.primary
+
+internal val CocinaContenedor: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.primaryContainer
+
+/** Fondo de las tarjetas (blanco en claro, gris verdoso en oscuro). */
+internal val CocinaSuperficie: Color
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.colorScheme.surface
 
 internal data class EstiloTipo(val icono: ImageVector, val fondo: Color, val color: Color)
 
-internal fun TipoComida.estiloCocina() = when (this) {
-    TipoComida.DESAYUNO -> EstiloTipo(Icons.Filled.FreeBreakfast, Color(0xFFFFF0C2), Color(0xFF7A5600))
-    TipoComida.COMIDA -> EstiloTipo(Icons.Filled.Restaurant, Color(0xFFDDEFFF), Color(0xFF1F5E99))
-    TipoComida.CENA -> EstiloTipo(Icons.Filled.NightsStay, Color(0xFFE4E1FF), Color(0xFF4B3FA8))
-    TipoComida.SNACK -> EstiloTipo(Icons.Filled.Cookie, Color(0xFFFFE3E5), Color(0xFF9C2F3C))
+@Composable
+@ReadOnlyComposable
+internal fun TipoComida.estiloCocina(): EstiloTipo {
+    val t = tono()
+    val icono = when (this) {
+        TipoComida.DESAYUNO -> Icons.Filled.FreeBreakfast
+        TipoComida.COMIDA -> Icons.Filled.Restaurant
+        TipoComida.CENA -> Icons.Filled.NightsStay
+        TipoComida.SNACK -> Icons.Filled.Cookie
+    }
+    return EstiloTipo(icono, t.fondo, t.icono)
 }
 
-internal fun CategoriaArticulo.estiloCocina() = when (this) {
-    CategoriaArticulo.ETIQUETAS -> EstiloTipo(Icons.Filled.Description, Color(0xFFDDEFFF), Color(0xFF1F5E99))
-    CategoriaArticulo.NUTRICION -> EstiloTipo(Icons.Filled.Eco, Color(0xFFFFE3E5), Color(0xFF9C2F3C))
-    CategoriaArticulo.HABITOS -> EstiloTipo(Icons.Filled.Schedule, Color(0xFFFFF0C2), Color(0xFF7A5600))
+@Composable
+@ReadOnlyComposable
+internal fun CategoriaArticulo.estiloCocina(): EstiloTipo = when (this) {
+    CategoriaArticulo.ETIQUETAS -> tonoAzul().let { EstiloTipo(Icons.Filled.Description, it.fondo, it.icono) }
+    CategoriaArticulo.NUTRICION -> tonoRosa().let { EstiloTipo(Icons.Filled.Eco, it.fondo, it.icono) }
+    CategoriaArticulo.HABITOS -> tonoAmarillo().let { EstiloTipo(Icons.Filled.Schedule, it.fondo, it.icono) }
 }
 
 @Composable

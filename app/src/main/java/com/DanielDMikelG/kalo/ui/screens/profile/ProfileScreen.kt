@@ -56,12 +56,15 @@ import com.DanielDMikelG.kalo.ui.components.KaloSecondaryButton
 import com.DanielDMikelG.kalo.ui.components.KaloTextField
 import com.DanielDMikelG.kalo.ui.theme.KaloTheme
 import com.DanielDMikelG.kalo.ui.theme.Spacing
+import com.DanielDMikelG.kalo.ui.theme.tonoAmarillo
+import com.DanielDMikelG.kalo.ui.theme.tonoAzul
 import java.time.LocalDate
 import java.util.Locale
 import kotlin.math.abs
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.DanielDMikelG.kalo.data.repository.PesoRepository
 import com.DanielDMikelG.kalo.ui.components.TecladoKalo
 import com.DanielDMikelG.kalo.util.EntradaNumerica
 
@@ -92,7 +95,8 @@ fun ProfileRoute(
         key = "perfil_$usuarioId",
         factory = viewModelFactory {
             initializer {
-                ProfileViewModel(UsuarioRepository(KaloDatabase.obtener(context)), usuarioId)
+                ProfileViewModel(UsuarioRepository(KaloDatabase.obtener(context)), PesoRepository(
+                    KaloDatabase.obtener(context)), usuarioId)
             }
         },
     )
@@ -127,7 +131,7 @@ fun ProfileContent(
     onAbrirAjustes: () -> Unit = {},
     modifier: Modifier = Modifier,
 
-) {
+    ) {
     BackHandler(enabled = state.editando, onBack = onCancelar)
     Surface(color = MaterialTheme.colorScheme.background, modifier = modifier) {
         val usuario = state.usuario
@@ -179,7 +183,7 @@ private fun InfoContent(
             state.mensaje?.let {
                 Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
             }
-            TarjetaPeso(state.pesoActualKg, objetivo.metaKg)
+            TarjetaPeso(state.pesoInicialKg, state.pesoActualKg, objetivo.metaKg)
             state.pesoActualKg?.let { TarjetaMeta(it, objetivo) }
 
             KaloCard {
@@ -258,21 +262,32 @@ private fun Pastilla(texto: String, borde: BorderStroke? = null) {
 }
 
 @Composable
-private fun TarjetaPeso(pesoActualKg: Float?, metaKg: Float) {
+private fun TarjetaPeso(pesoInicialKg: Float?, pesoActualKg: Float?, metaKg: Float) {
+    val amarillo = tonoAmarillo()
+    val azul = tonoAzul()
     KaloCard {
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
             Text("Tu peso", style = MaterialTheme.typography.titleMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 TilePeso(
+                    etiqueta = "Inicial",
+                    valor = pesoInicialKg?.aTexto() ?: "—",
+                    fondo = amarillo.fondo,
+                    contenido = amarillo.icono,
+                    modifier = Modifier.weight(1f),
+                )
+                TilePeso(
                     etiqueta = "Actual",
                     valor = pesoActualKg?.aTexto() ?: "—",
                     fondo = MaterialTheme.colorScheme.primaryContainer,
+                    contenido = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.weight(1f),
                 )
                 TilePeso(
                     etiqueta = "Objetivo",
                     valor = metaKg.aTexto(),
-                    fondo = Color(0xFFDDF0FF), // azul pastel (mismo que los carbohidratos)
+                    fondo = azul.fondo,
+                    contenido = azul.icono,
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -287,8 +302,15 @@ private fun TarjetaPeso(pesoActualKg: Float?, metaKg: Float) {
     }
 }
 
+/** [contenido] es el color del texto: oscuro sobre pastel en claro, claro sobre fondo oscuro en oscuro. */
 @Composable
-private fun TilePeso(etiqueta: String, valor: String, fondo: Color, modifier: Modifier = Modifier) {
+private fun TilePeso(
+    etiqueta: String,
+    valor: String,
+    fondo: Color,
+    contenido: Color,
+    modifier: Modifier = Modifier,
+) {
     Surface(color = fondo, shape = MaterialTheme.shapes.medium, modifier = modifier) {
         Column(
             modifier = Modifier
@@ -296,9 +318,9 @@ private fun TilePeso(etiqueta: String, valor: String, fondo: Color, modifier: Mo
                 .padding(vertical = 12.dp, horizontal = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(etiqueta, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(valor, style = MaterialTheme.typography.headlineSmall)
-            Text("kg", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(etiqueta, style = MaterialTheme.typography.labelMedium, color = contenido)
+            Text(valor, style = MaterialTheme.typography.headlineSmall, color = contenido)
+            Text("kg", style = MaterialTheme.typography.labelMedium, color = contenido)
         }
     }
 }
@@ -424,7 +446,7 @@ private val objetivoEjemplo = Objetivo(
     metaKg = 75f, plazo = 12, kcalDiarias = 2400, aguaMeta = 2000,
 )
 private val estadoEjemplo = ProfileUiState(
-    cargando = false, usuario = usuarioEjemplo, objetivo = objetivoEjemplo, pesoActualKg = 78.4f,
+    cargando = false, usuario = usuarioEjemplo, objetivo = objetivoEjemplo, pesoActualKg = 78.4f, pesoInicialKg = 82f,
 )
 
 @Preview(name = "Perfil claro", showBackground = true, heightDp = 900)
