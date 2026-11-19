@@ -57,7 +57,6 @@ dependencies {
     implementation(libs.androidx.room.compiler)
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation(libs.androidx.ui)
     implementation(libs.core.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -77,7 +76,6 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.4.2")
     implementation("androidx.camera:camera-view:1.4.2")
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
-    implementation(libs.androidx.work.runtime.ktx)
 }
 
 configurations.configureEach {

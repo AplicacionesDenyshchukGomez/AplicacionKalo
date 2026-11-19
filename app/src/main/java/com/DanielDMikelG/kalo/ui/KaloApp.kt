@@ -34,7 +34,6 @@ import com.DanielDMikelG.kalo.data.local.SesionManager
 import com.DanielDMikelG.kalo.ui.screens.profile.ProfileRoute
 import com.DanielDMikelG.kalo.ui.screens.register.RegistroViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.navArgument
 import com.DanielDMikelG.kalo.ui.screens.home.InicioRoute
 import com.DanielDMikelG.kalo.ui.screens.product.FichaProductoRoute
@@ -64,17 +63,9 @@ import com.DanielDMikelG.kalo.ui.screens.anadir.CantidadRoute
 import com.DanielDMikelG.kalo.ui.screens.anadir.CantidadViewModel
 import com.DanielDMikelG.kalo.ui.screens.anadir.SeleccionComidaViewModel
 import com.DanielDMikelG.kalo.domain.usecase.ElegirRecetaDelDiaUseCase
-import com.DanielDMikelG.kalo.data.repository.PesoRepository
-import com.DanielDMikelG.kalo.notifications.NotificacionesAgua
-import com.DanielDMikelG.kalo.ui.components.PedirPermisoNotificaciones
-import com.DanielDMikelG.kalo.ui.screens.weight.AnadirPesoRoute
-import com.DanielDMikelG.kalo.ui.screens.weight.AnadirPesoViewModel
 
 @Composable
-fun KaloApp(
-    destinoPendiente: String? = null,
-    onDestinoAtendido: () -> Unit = {},
-) {
+fun KaloApp() {
     val navController = rememberNavController()
     val context = LocalContext.current
     val registroViewModel: RegistroViewModel = viewModel()
@@ -87,21 +78,6 @@ fun KaloApp(
     val entrada by navController.currentBackStackEntryAsState()
     val rutaActual = entrada?.destination?.route
     val mostrarBarra = rutaActual in Destino.menu.map { it.ruta }
-
-    if (mostrarBarra) PedirPermisoNotificaciones()
-
-    LaunchedEffect(destinoPendiente) {
-        if (destinoPendiente == NotificacionesAgua.DESTINO_DIARIO) {
-            if (SesionManager(context).usuarioActual() != null) {
-                navController.navigate(Destino.Diary.ruta) {
-                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            }
-            onDestinoAtendido()
-        }
-    }
 
     Scaffold(
         bottomBar = { if (mostrarBarra) BarraInferior(navController) }
