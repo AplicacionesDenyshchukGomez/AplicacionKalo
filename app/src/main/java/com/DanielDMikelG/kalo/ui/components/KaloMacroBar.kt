@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -119,11 +118,12 @@ private fun BarraGorda(
     color: Color,
     colorSuave: Color,
     alto: Dp,
-    colorExceso: Color = lerp(color, Color.Black, 0.4f),
 ) {
-    val f = FraccionesBarra.desde(consumido, meta)
-    val normal by animateFloatAsState(f.normal, tween(600), label = "macro")
-    val exceso by animateFloatAsState(f.exceso, tween(600), label = "macroExceso")
+    val fraccion by animateFloatAsState(
+        targetValue = if (meta <= 0f) 0f else (consumido / meta).coerceIn(0f, 1f),
+        animationSpec = tween(durationMillis = 600),
+        label = "macro",
+    )
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -131,9 +131,12 @@ private fun BarraGorda(
             .clip(CircleShape)
             .background(colorSuave),
     ) {
-        Box(Modifier.fillMaxWidth(normal).fillMaxHeight().clip(CircleShape).background(color))
-        if (exceso > 0f) {
-            Box(Modifier.fillMaxWidth(exceso).fillMaxHeight().clip(CircleShape).background(colorExceso))
-        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(fraccion)
+                .fillMaxHeight()
+                .clip(CircleShape)
+                .background(color),
+        )
     }
 }

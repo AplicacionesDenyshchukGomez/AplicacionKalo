@@ -28,7 +28,6 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -52,8 +51,6 @@ import com.DanielDMikelG.kalo.domain.model.FiltroRecetas
 import com.DanielDMikelG.kalo.domain.model.Receta
 import com.DanielDMikelG.kalo.domain.model.TipoComida
 import com.DanielDMikelG.kalo.domain.usecase.ElegirRecetaDelDiaUseCase
-import com.DanielDMikelG.kalo.ui.theme.esTemaOscuro
-import com.DanielDMikelG.kalo.ui.theme.kaloColors
 
 @Composable
 fun CocinaRoute(
@@ -146,15 +143,15 @@ fun CocinaScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     FilaObjetivo(
                         "Altas en proteína", "Para ganar masa o sentirte saciado",
-                        MaterialTheme.kaloColors.protein, MaterialTheme.kaloColors.proteinSoft,
+                        Color(0xFFFF9AA2), Color(0xFFFFE3E5),
                     ) { onFiltro(FiltroRecetas.ALTA_PROTEINA) }
                     FilaObjetivo(
                         "Ligeras", "Menos de 400 kcal por ración",
-                        Color(0xFF7FD3A4), MaterialTheme.colorScheme.surfaceVariant,
+                        Color(0xFF7FD3A4), Color(0xFFDDF3E5),
                     ) { onFiltro(FiltroRecetas.LIGERAS) }
                     FilaObjetivo(
                         "Con mucha fibra", "Legumbres, verduras y cereales integrales",
-                        MaterialTheme.kaloColors.fiber, MaterialTheme.kaloColors.fiberSoft,
+                        Color(0xFFD9B38C), Color(0xFFF3E7D8),
                     ) { onFiltro(FiltroRecetas.ALTA_FIBRA) }
                 }
             }
@@ -196,7 +193,7 @@ private fun TituloSeccion(titulo: String, accion: String, onAccion: () -> Unit) 
     ) {
         Text(titulo, color = CocinaTexto, fontSize = 21.sp, fontWeight = FontWeight.Black)
         TextButton(onClick = onAccion) {
-            Text(accion, color = MaterialTheme.colorScheme.onPrimaryContainer, fontSize = 15.sp, fontWeight = FontWeight.Black)
+            Text(accion, color = Color(0xFF14573A), fontSize = 15.sp, fontWeight = FontWeight.Black)
         }
     }
 }
@@ -212,7 +209,7 @@ private fun TarjetaRecetaDelDia(receta: Receta, onVer: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
-                    .background(CocinaSuperficie, RoundedCornerShape(24.dp)),
+                    .background(Color.White, RoundedCornerShape(24.dp)),
                 contentAlignment = Alignment.Center,
             ) {
                 Plato()
@@ -224,7 +221,7 @@ private fun TarjetaRecetaDelDia(receta: Receta, onVer: () -> Unit) {
                     Text(
                         receta.tipo.etiqueta,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        color = MaterialTheme.colorScheme.background, fontSize = 13.sp, fontWeight = FontWeight.Black,
+                        color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Black,
                     )
                 }
             }
@@ -253,7 +250,7 @@ private fun TarjetaRecetaDelDia(receta: Receta, onVer: () -> Unit) {
 
 @Composable
 private fun Dato(texto: String) {
-    Surface(shape = CircleShape, color = CocinaSuperficie) {
+    Surface(shape = CircleShape, color = Color.White) {
         Text(
             texto,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
@@ -265,11 +262,10 @@ private fun Dato(texto: String) {
 /** Plato con una tortilla y hojas, dibujado con Canvas. */
 @Composable
 private fun Plato() {
-    val sombra = if (esTemaOscuro()) Color(0x33000000) else Color(0xFFDDF3E5)
     Canvas(Modifier.size(width = 150.dp, height = 130.dp)) {
         val s = size.width / 150f
         val centro = Offset(75f * s, 62f * s)
-        drawOval(sombra, topLeft = Offset(17f * s, 104f * s), size = Size(116f * s, 16f * s))
+        drawOval(Color(0xFFDDF3E5), topLeft = Offset(17f * s, 104f * s), size = Size(116f * s, 16f * s))
         drawCircle(Color(0xFFF4FBF6), radius = 52f * s, center = centro)
         drawCircle(Color(0xFFB8E6CA), radius = 52f * s, center = centro, style = Stroke(width = 4f * s))
         drawCircle(Color(0xFFFFF1BF), radius = 38f * s, center = centro)
@@ -307,7 +303,7 @@ private fun BotonTipo(titulo: String, tipo: TipoComida, modifier: Modifier, onCl
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Box(
-                Modifier.size(44.dp).background(CocinaSuperficie, RoundedCornerShape(16.dp)),
+                Modifier.size(44.dp).background(Color.White, RoundedCornerShape(16.dp)),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(estilo.icono, contentDescription = null, tint = estilo.color, modifier = Modifier.size(24.dp))
@@ -322,7 +318,7 @@ private fun TarjetaRapida(receta: Receta, onClick: () -> Unit) {
     val estilo = receta.tipo.estiloCocina()
     Surface(
         shape = RoundedCornerShape(26.dp),
-        color = CocinaSuperficie,
+        color = Color.White,
         border = BorderStroke(2.dp, CocinaBorde),
         modifier = Modifier.width(168.dp).clickable(onClick = onClick),
     ) {
@@ -351,7 +347,7 @@ private fun TarjetaRapida(receta: Receta, onClick: () -> Unit) {
 private fun FilaObjetivo(titulo: String, detalle: String, punto: Color, fondo: Color, onClick: () -> Unit) {
     Surface(
         shape = RoundedCornerShape(26.dp),
-        color = CocinaSuperficie,
+        color = Color.White,
         border = BorderStroke(2.dp, CocinaBorde),
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
     ) {
@@ -377,7 +373,7 @@ private fun TarjetaArticulo(articulo: Articulo, onClick: () -> Unit) {
     val estilo = articulo.categoria.estiloCocina()
     Surface(
         shape = RoundedCornerShape(26.dp),
-        color = CocinaSuperficie,
+        color = Color.White,
         border = BorderStroke(2.dp, CocinaBorde),
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
     ) {

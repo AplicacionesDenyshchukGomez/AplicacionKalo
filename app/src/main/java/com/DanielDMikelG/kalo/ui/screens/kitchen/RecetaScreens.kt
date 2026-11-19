@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -73,7 +74,7 @@ private fun FilaReceta(receta: Receta, onClick: () -> Unit) {
     val estilo = receta.tipo.estiloCocina()
     Surface(
         shape = RoundedCornerShape(26.dp),
-        color = CocinaSuperficie,
+        color = Color.White,
         border = BorderStroke(2.dp, CocinaBorde),
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
     ) {
@@ -232,7 +233,7 @@ private fun Pildora(texto: String) {
 private fun Bloque(titulo: String, contenido: @Composable () -> Unit) {
     Surface(
         shape = RoundedCornerShape(28.dp),
-        color = CocinaSuperficie,
+        color = Color.White,
         border = BorderStroke(2.dp, CocinaBorde),
         modifier = Modifier.fillMaxWidth(),
     ) {

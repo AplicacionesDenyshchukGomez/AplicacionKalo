@@ -12,7 +12,6 @@ import com.DanielDMikelG.kalo.domain.model.Sexo
 import com.DanielDMikelG.kalo.domain.model.TipoObjetivo
 import com.DanielDMikelG.kalo.domain.model.Usuario
 import com.DanielDMikelG.kalo.domain.usecase.CalcularCaloriasUseCase
-import com.DanielDMikelG.kalo.domain.usecase.PlazoObjetivo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,7 +32,7 @@ data class RegistroUiState(
     val altura: String = "",
     val tipoObjetivo: TipoObjetivo? = null,
     val metaKg: String = "",
-    val plazo: String = PlazoObjetivo.POR_DEFECTO.toString(),
+    val plazo: String = "",
     val error: String? = null,
     val guardando: Boolean = false
 ) {
@@ -57,11 +56,11 @@ data class RegistroUiState(
     val objetivoValido: Boolean
         get() {
             val tipo = tipoObjetivo ?: return false
-            // El plazo cuenta también para Mantener: nunca 0, entre 1 y 104 semanas
-            if (!PlazoObjetivo.esValido(plazo.toIntOrNull())) return false
             if (tipo == TipoObjetivo.MANTENER) return true
             val meta = metaKg.aNumero() ?: return false
+            val semanas = plazo.toIntOrNull() ?: return false
             val pesoActual = peso.aNumero() ?: return false
+            if (semanas < 1) return false
             return when (tipo) {
                 TipoObjetivo.ADELGAZAR -> meta < pesoActual
                 TipoObjetivo.GANAR_MASA -> meta > pesoActual
@@ -132,7 +131,7 @@ class RegistroViewModel(app: Application) : AndroidViewModel(app) {
             usuarioId = 0,   // se rellena en el repositorio con el id real
             tipo = tipo,
             metaKg = if (mantener) pesoKg else datos.metaKg.aNumero()?.toFloat() ?: return,
-            plazo = datos.plazo.toIntOrNull() ?: return,
+            plazo = if (mantener) 0 else datos.plazo.toIntOrNull() ?: return,
             kcalDiarias = null,
             aguaMeta = AGUA_META_ML
         )
