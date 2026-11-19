@@ -2,6 +2,7 @@ package com.DanielDMikelG.kalo.ui.screens.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.DanielDMikelG.kalo.data.repository.PesoRepository
 import com.DanielDMikelG.kalo.data.repository.UsuarioRepository
 import com.DanielDMikelG.kalo.domain.model.NivelActividad
 import com.DanielDMikelG.kalo.domain.model.Objetivo
@@ -62,6 +63,7 @@ data class ProfileUiState(
     val usuario: Usuario? = null,
     val objetivo: Objetivo? = null,
     val pesoActualKg: Float? = null,
+    val pesoInicialKg: Float? = null,
     val editando: Boolean = false,
     val guardando: Boolean = false,
     val form: ProfileFormState = ProfileFormState(),
@@ -83,6 +85,7 @@ private fun formDe(usuario: Usuario, objetivo: Objetivo) = ProfileFormState(
 
 class ProfileViewModel(
     private val repositorio: UsuarioRepository,
+    private val repoPeso: PesoRepository,
     private val usuarioId: Long,
     private val calcularCalorias: CalcularCaloriasUseCase = CalcularCaloriasUseCase(),
 ) : ViewModel() {
@@ -96,11 +99,17 @@ class ProfileViewModel(
                 repositorio.observarUsuario(usuarioId),
                 repositorio.observarObjetivo(usuarioId),
                 repositorio.observarUltimoPeso(usuarioId),
-            ) { usuario, objetivo, peso -> Triple(usuario, objetivo, peso?.pesoKg) }
-                .collect { (usuario, objetivo, peso) ->
+                repoPeso.observarPrimero(usuarioId),
+            ) { usuario, objetivo, peso, primero -> DatosPerfil(usuario, objetivo, peso?.pesoKg, primero?.pesoKg) }
+                .collect { datos ->
                     // El formulario no se toca: si el usuario está editando, no perdemos lo que escribe
                     _uiState.update {
-                        it.copy(cargando = false, usuario = usuario, objetivo = objetivo, pesoActualKg = peso)
+                        it.copy(
+                            cargando = false,
+                            usuario = datos.usuario,
+                            objetivo = datos.objetivo,
+                            pesoActualKg = datos.pesoActualKg,
+                            pesoInicialKg = datos.pesoInicialKg)
                     }
                 }
         }
@@ -191,5 +200,11 @@ class ProfileViewModel(
             }
         }
     }
+    private data class DatosPerfil(
+        val usuario: Usuario?,
+        val objetivo: Objetivo?,
+        val pesoActualKg: Float?,
+        val pesoInicialKg: Float?,
+    )
 }
 

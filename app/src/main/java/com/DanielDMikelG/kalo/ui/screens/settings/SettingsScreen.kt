@@ -2,14 +2,18 @@ package com.DanielDMikelG.kalo.ui.screens.settings
 
 import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -17,11 +21,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -32,6 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.DanielDMikelG.kalo.ui.components.KaloIconoRedondo
@@ -50,6 +58,10 @@ fun SettingsScreen(
     onEditarPerfil: () -> Unit,
     onCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier,
+    recordatorioAgua: Boolean = true,
+    notificacionesBloqueadas: Boolean = false,
+    onRecordatorioAgua: (Boolean) -> Unit = {},
+    onAbrirAjustesMovil: () -> Unit = {},
 ) {
     var confirmarCierre by rememberSaveable { mutableStateOf(false) }
     var verAcercaDe by rememberSaveable { mutableStateOf(false) }
@@ -87,6 +99,35 @@ fun SettingsScreen(
                         onClick = onEditarPerfil,
                     )
                 }
+
+                Seccion("Notificaciones") {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilaInterruptor(
+                            icono = Icons.Default.Notifications,
+                            colorFondoIcono = Color(0xFFDDF0FF),
+                            colorIcono = Color(0xFF1F6FA8),
+                            titulo = "Recordatorio de agua",
+                            subtitulo = "Dos avisos al día, a las 12:00 y las 18:00, si te faltan vasos",
+                            activo = recordatorioAgua,
+                            onCambio = onRecordatorioAgua,
+                        )
+                        if (recordatorioAgua && notificacionesBloqueadas) {
+                            Surface(
+                                onClick = onAbrirAjustesMovil,
+                                shape = RoundedCornerShape(20.dp),
+                                color = MaterialTheme.colorScheme.errorContainer,
+                            ) {
+                                Text(
+                                    "Las notificaciones de Kalo están desactivadas en el móvil. Toca aquí para activarlas.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onErrorContainer,
+                                    modifier = Modifier.padding(14.dp),
+                                )
+                            }
+                        }
+                    }
+                }
+
                 Seccion("Información") {
                     KaloSettingsRow(
                         icono = Icons.Default.Info,
@@ -173,6 +214,44 @@ private fun Seccion(titulo: String, contenido: @Composable () -> Unit) {
             modifier = Modifier.padding(start = 4.dp),
         )
         contenido()
+    }
+}
+
+@Composable
+private fun FilaInterruptor(
+    icono: ImageVector,
+    colorFondoIcono: Color,
+    colorIcono: Color,
+    titulo: String,
+    subtitulo: String,
+    activo: Boolean,
+    onCambio: (Boolean) -> Unit,
+) {
+    Surface(
+        shape = RoundedCornerShape(26.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.outlineVariant),
+        modifier = Modifier
+            .fillMaxWidth()
+            .toggleable(value = activo, role = Role.Switch, onValueChange = onCambio),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Box(
+                modifier = Modifier.size(48.dp).background(colorFondoIcono, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(icono, contentDescription = null, tint = colorIcono)
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(titulo, style = MaterialTheme.typography.titleMedium)
+                Text(subtitulo, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Switch(checked = activo, onCheckedChange = null)
+        }
     }
 }
 
