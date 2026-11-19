@@ -1,26 +1,45 @@
-# AplicacionKalo
-Kalo <br>
-Aplicación móvil de nutrición y conteo de calorías, desarrollada en Kotlin.<br><br>
+# Kalo
 
-Descripción<br>
-Kalo es una app que hace que llevar el control de la alimentación sea rápido y sencillo. En lugar de buscar y pesar cada alimento a mano, el usuario registra sus comidas con una foto, la voz o el texto, y la app estima calorías y macronutrientes y le ofrece recomendaciones personalizadas, con un enfoque en los hábitos y sin generar obsesión por los números.
-Proyecto desarrollado en el marco de Proyecto Moviles.<br><br>
+Aplicación Android nativa para llevar la cuenta de las calorías y los macronutrientes de cada día, con una mascota que reacciona a cómo vas.
 
-Características principales<br>
-Registro de comidas por foto con estimación de alimentos, porciones y macros.<br>
-Buscador de alimentos y escáner de código de barras.<br>
-Diario diario con calorías restantes, macros y registro de agua.<br>
-Objetivos personalizados según edad, peso, altura, actividad y meta (perder, mantener o ganar peso).<br>
-Seguimiento del progreso: evolución del peso y resúmenes semanales.<br><br>
+## Qué hace
 
-Tecnologías utilizadas<br>
-Lenguaje ->	Kotlin<br>
-Plataforma	-> Android<br>
-Interfaz	-> Jetpack Compose<br>
-Arquitectura	-> MVVM<br>
-Base de datos local	-> Room (SQLite)<br>
-Base de datos de alimentos	-> Open Food Facts<br>
-Control de versiones	-> Git y GitHub<br><br>
-Autores<br>
-Mikel — @Mikel1412<br>
-Daniel — @DaniZomboo<br>
+- **Registro y objetivo:** crea tu cuenta, indica tus datos y tu objetivo (adelgazar, mantener o ganar masa) y Kalo calcula tu meta de calorías.
+- **Diario:** muestra lo que has comido por desayuno, comida, cena y snack, con calorías restantes, macros (proteínas, grasas, carbohidratos y fibra) y vasos de agua. Se puede navegar entre días y editar o borrar entradas.
+- **Añadir comida** de cuatro formas: buscar por nombre (en tu dispositivo y en Open Food Facts), escanear el código de barras, crear tus propios alimentos o elegir entre los guardados recientemente.
+- **Cantidad:** eliges los gramos y ves al momento las calorías y los macros antes de guardar.
+- **Inicio:** resumen del día, mascota, racha de días seguidos y acceso a la receta del día.
+- **Cocina:** receta del día, listas por tipo de comida y por objetivo, detalle de recetas y artículos.
+- **Perfil y ajustes.**
+
+## Tecnologías
+
+Kotlin, Jetpack Compose (Material 3), arquitectura MVVM, Room, Retrofit con Gson, CameraX y ML Kit (escáner de códigos de barras) y Navigation Compose. Más detalle en [docs/arquitectura.md](docs/arquitectura.md).
+
+## Cómo probarla
+
+**Con el APK:** descarga `KaloApp.apk` e instálalo en un móvil Android. Hay que permitir la instalación de orígenes desconocidos.
+
+**Desde el código:**
+1. Clona el repositorio y ábrelo con Android Studio.
+2. Sincroniza Gradle y ejecuta la configuración `app` en un emulador o en un móvil.
+3. Para el escáner de códigos de barras hace falta una cámara real y conceder el permiso de cámara. En el emulador se puede escribir el código a mano.
+
+**Tests:** `./gradlew test` ejecuta los tests unitarios (cálculos de calorías, macros, nutrientes por ración, racha, receta del día y validación de alimentos).
+
+## Datos de alimentos
+
+Los datos de productos proceden de [Open Food Facts](https://world.openfoodfacts.org), una base de datos colaborativa publicada bajo licencia [ODbL](https://opendatacommons.org/licenses/odbl/1-0/). Kalo solo guarda en el dispositivo los productos que el usuario elige.
+
+## Limitaciones conocidas
+
+- Los valores nutricionales de las recetas de Cocina son **aproximados**, y la información de la app es orientativa y **no sustituye el consejo de un profesional de la salud**.
+- Las búsquedas muy genéricas en internet (por ejemplo "pan") pueden tardar o fallar cuando Open Food Facts está saturado; con un nombre más concreto responde mejor.
+- Los datos de la app son locales: no hay sincronización entre dispositivos.
+- Las misiones y el buscador de recetas quedan fuera de esta entrega.
+
+## Equipo
+
+- Daniel Denyshchuk
+- Mikel Gómez
+
